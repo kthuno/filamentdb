@@ -16,7 +16,7 @@ class DeployTest(unittest.TestCase):
         self.addCleanup(patch.stopall)
 
     def test_version_validation(self):
-        self.assertEqual(deploy.next_version("0.1.9"), "0.1.10")
+        self.assertEqual(deploy.next_version("0.1.9"), "0.1.9")
         for value in ("v1.0", "1.2", "1.2.-1", "01.2.3"):
             with self.assertRaises(ValueError):
                 deploy.next_version(value)
@@ -25,7 +25,7 @@ class DeployTest(unittest.TestCase):
         self.assertEqual(deploy.next_version("1.2.9", "build"), "1.2.10")
         self.assertEqual(deploy.next_version("1.2.9", "minor"), "1.3.0")
         self.assertEqual(deploy.next_version("1.2.9", "major"), "2.0.0")
-        self.assertEqual(deploy.parse_args([]).bump, "build")
+        self.assertIsNone(deploy.parse_args([]).bump)
         self.assertEqual(deploy.parse_args([]).env_file, Path(".env.mysql"))
         self.assertEqual(
             deploy.parse_args(["--env-file", ".env.other"]).env_file, Path(".env.other")
@@ -52,7 +52,7 @@ class DeployTest(unittest.TestCase):
                         run.call_args.kwargs["env"]["APP_VERSION"], expected
                     )
 
-    def test_deploy_reserves_version_and_passes_it_to_build(self):
+    def test_default_deploy_preserves_version_and_passes_it_to_build(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "VERSION").write_text("0.1.0\n")
@@ -61,12 +61,45 @@ class DeployTest(unittest.TestCase):
                 patch.object(deploy.subprocess, "run") as run,
             ):
                 deploy.deploy()
-                self.assertEqual((root / "VERSION").read_text(), "0.1.1\n")
-                self.assertEqual(run.call_args.kwargs["env"]["APP_VERSION"], "0.1.1")
+                self.assertEqual((root / "VERSION").read_text(), "0.1.0\n")
+                self.assertEqual(run.call_args.kwargs["env"]["APP_VERSION"], "0.1.0")
                 self.assertIn("--wait", run.call_args.args[0])
                 self.assertIn("--force-recreate", run.call_args.args[0])
                 deploy.deploy()
-                self.assertEqual((root / "VERSION").read_text(), "0.1.2\n")
+                self.assertEqual((root / "VERSION").read_text(), "0.1.0\n")
+
+    def test_default_deploy_never_rewrites_version_on_success_or_failure(self):
+        for failure in (False, True):
+            with (
+                self.subTest(failure=failure),
+                tempfile.TemporaryDirectory() as directory,
+            ):
+                root = Path(directory)
+                version = root / "VERSION"
+                version.write_bytes(b"1.2.3\r\n")
+                version.chmod(0o444)
+                before = version.read_bytes(), version.stat().st_mtime_ns
+                effects = (
+                    [None, subprocess.CalledProcessError(1, ["docker"])]
+                    if failure
+                    else None
+                )
+                with (
+                    patch.object(deploy, "ROOT", root),
+                    patch.object(deploy.subprocess, "run", side_effect=effects) as run,
+                ):
+                    if failure:
+                        with self.assertRaises(subprocess.CalledProcessError):
+                            deploy.deploy()
+                    else:
+                        self.assertEqual(deploy.deploy(), "1.2.3")
+                    self.assertEqual(
+                        run.call_args.kwargs["env"]["APP_VERSION"], "1.2.3"
+                    )
+                self.assertEqual(
+                    (version.read_bytes(), version.stat().st_mtime_ns), before
+                )
+                self.assertFalse((root / ".VERSION.tmp").exists())
 
     def test_cleanup_and_image_lookup_are_opt_in(self):
         self.assertFalse(deploy.parse_args([]).cleanup_images)
@@ -104,7 +137,7 @@ class DeployTest(unittest.TestCase):
                 patch.object(deploy.subprocess, "run", side_effect=[None, failure]),
             ):
                 with self.assertRaises(subprocess.CalledProcessError):
-                    deploy.deploy()
+                    deploy.deploy("build")
                 self.assertEqual(version.read_text(), "0.1.1\n")
                 self.cleanup.assert_not_called()
 
@@ -163,7 +196,7 @@ class ComposeEnvironmentTest(unittest.TestCase):
                 self.assertEqual(
                     run.call_args.kwargs["env"]["DOCKER_HOST"], "ssh://test-macmini"
                 )
-                self.assertEqual(run.call_args.kwargs["env"]["APP_VERSION"], "1.2.4")
+                self.assertEqual(run.call_args.kwargs["env"]["APP_VERSION"], "1.2.3")
                 self.assertNotIn("private-test-value", str(run.call_args_list))
 
     def test_cleanup_flag_is_forwarded_and_check_does_not_deploy(self):
@@ -173,7 +206,7 @@ class ComposeEnvironmentTest(unittest.TestCase):
         ):
             self.assertEqual(deploy.main(["--cleanup-images", "--no-push"]), 0)
             start.assert_called_once_with(
-                "build", env_file=Path(".env.mysql"), clean_images=True
+                None, env_file=Path(".env.mysql"), clean_images=True
             )
         with (
             patch.object(deploy, "deploy") as start,
@@ -373,7 +406,7 @@ class GitPushTest(unittest.TestCase):
         ):
             self.assertEqual(deploy.main(["--no-push"]), 1)
             start.assert_called_once_with(
-                "build", env_file=Path(".env.mysql"), clean_images=False
+                None, env_file=Path(".env.mysql"), clean_images=False
             )
             offer.assert_called_once_with("1.2.3", True)
             self.assertIn(

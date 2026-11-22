@@ -88,17 +88,17 @@ and [request body size](https://nginx.org/en/docs/http/ngx_http_core_module.html
 
 `compose.yaml` fixes the project name to `3d-filament-db`, regardless of the checkout directory name. This matches existing production and reuses `3d-filament-db_filament-data` for SQLite/original files. Do not override it with `COMPOSE_PROJECT_NAME` or `docker compose -p` during normal operation. Another project name can create an empty volume and conflict with the fixed container name `filamentdb`.
 
-If deployment reports that the container name is already in use, check its project label and `/data` volume before retrying. Do not delete the container or volume to bypass the error. Correcting the project name requires no changes to the database, grants, nginx, or host networking. The mistakenly created `filamentdb_filament-data` is unused and is not deleted automatically. A version reserved by a failed deployment is retained.
+If deployment reports that the container name is already in use, check its project label and `/data` volume before retrying. Do not delete the container or volume to bypass the error. Correcting the project name requires no changes to the database, grants, nginx, or host networking. The mistakenly created `filamentdb_filament-data` is unused and is not deleted automatically. A version reserved by an explicit `--bump` is retained if deployment fails.
 
 ## Versioning and updates
 
-Run `python3 -m src.deploy` from the project root. The script checks Compose configuration, increments the build component (z) in `VERSION` by default (initially `0.1.0` → `0.1.1`), builds and recreates the app container, and waits for its healthcheck. The version is embedded in the image and shown in the footer through `/api/version`. That endpoint also reports the configured database backend, showing SQLite locally and MySQL in production. Reload after updating.
+Run `python3 -m src.deploy` from the project root. The script checks Compose configuration, reads and validates the existing `VERSION` without changing the file, builds and recreates the app container, and waits for its healthcheck. The version is embedded in the image and shown in the footer through `/api/version`. That endpoint also reports the configured database backend, showing SQLite locally and MySQL in production. Reload after updating.
 
-A lock prevents concurrent deployments from the same checkout. If deployment fails after reserving a version, that number remains used; the next attempt uses the next number. Save/commit `VERSION` with changes to preserve the sequence across checkouts. Deploy from one checkout for a consistent sequence. Choose a component with `--bump`; major/minor reset subsequent components:
+A lock prevents concurrent deployments from the same checkout. Ordinary deployments, including failed attempts and retries, leave `VERSION` untouched. Set and commit the release version explicitly before deployment, or request a component change with `--bump`. An explicit bump is reserved before the build and retained after failure. A retry without `--bump` uses that existing version; repeating `--bump` increments it again. Major/minor reset subsequent components:
 
 ```sh
-python3 -m src.deploy              # build: 1.2.9 → 1.2.10
-python3 -m src.deploy --bump build # same as default
+python3 -m src.deploy              # deploy existing VERSION unchanged
+python3 -m src.deploy --bump build # explicitly increment: 1.2.9 → 1.2.10
 python3 -m src.deploy --bump minor # minor: 1.2.9 → 1.3.0
 python3 -m src.deploy --bump major # major: 1.2.9 → 2.0.0
 ```
@@ -107,9 +107,9 @@ Image cleanup is disabled by default to avoid extra Docker calls. Use `python3 -
 
 After successful deployment in an interactive terminal, the script shows `git status --short` and asks whether to commit and push changes. The default is yes (Enter). If accepted, it asks for a commit message; Enter uses a locally generated message meaning “Update Filament DB to vX.Y.Z”. No AI or external service generates the suggestion. It runs `git add --all .`, `git commit -m ...` if changes exist, and `git push` to the current branch's upstream. All project changes are included, including version changes and deleted files; Git-ignored files are excluded. Git needs a configured identity, upstream, and GitHub access.
 
-For the public repository, deploy deliberately from a working branch with `python3 -m src.deploy --no-push`, then commit the reserved VERSION change on that branch and merge it through a pull request. The protected main branch rejects direct pushes from the deployment script. Deployment is a separate operation from merging a pull request and is never run by CI.
+For the public repository, set and commit any intended release VERSION change through a pull request before deployment. Deploy deliberately with `python3 -m src.deploy --no-push`. If you deliberately use `--bump`, commit its reserved VERSION change on the working branch afterward and merge through a pull request. The protected main branch rejects direct pushes from the deployment script. Deployment is a separate operation from merging a pull request and is never run by CI.
 
-Use `python3 -m src.deploy --no-push` to skip the prompt. Non-interactive runs skip it automatically. Failed deployment never prompts for a push. If Git fails after deployment, the running app and reserved version remain; finish the Git operation manually without deploying again.
+Use `python3 -m src.deploy --no-push` to skip the prompt. Non-interactive runs skip it automatically. Failed deployment never prompts for a push. If Git fails after deployment, the running app and selected version remain; finish the Git operation manually without deploying again.
 
 Choose another local Compose environment file with `--env-file`; the same file is used for validation, previous-image lookup, and deployment. Relative paths are resolved from the project root. Without the flag, `src/deploy.py` uses the project's `.env.mysql`. It must exist; there is no automatic SQLite fallback. Ordinary `docker compose` commands still need `--env-file .env.mysql` unless Compose configuration is supplied otherwise. The script inherits `DOCKER_HOST`, Docker context, and other environment variables, so it can run locally against the Mac mini without a server checkout.
 
@@ -126,7 +126,7 @@ Healthchecks run every second during the first 30 seconds of startup, then every
 
 `python3 -m src.deploy --help` lists options without deploying.
 
-Ordinary `docker compose` commands and restarts do not increment the version; use the script for updates. Direct `python3 -m src.app` and ordinary Docker builds use `VERSION` unless `APP_VERSION` is set. Versioning does not change the filament database.
+Ordinary `docker compose` commands, restarts, and default script deployments do not increment the version. Only an explicit `--bump` requests an increment. Direct `python3 -m src.app` and ordinary Docker builds use `VERSION` unless `APP_VERSION` is set. Versioning does not change the filament database.
 
 ## See also
 
