@@ -1630,7 +1630,7 @@ class ApiTest(unittest.TestCase):
             width = int.from_bytes(data[16:20], "big")
             height = int.from_bytes(data[20:24], "big")
             self.assertEqual(f"{width}x{height}", icon["sizes"])
-        self.assertIn(b"#reload-app", self.request("/install.js").read())
+        self.assertNotIn(b'id="reload-app"', self.request("/").read())
         self.assertIn(b'rel="manifest"', self.request("/").read())
 
     def test_language_catalog_assets_and_error_metadata(self):

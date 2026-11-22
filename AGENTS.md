@@ -22,7 +22,7 @@ Applies to the entire repository. See [README.md](README.md) for an overview and
 - `static/index.html`, `static/app.js`, `static/style.css`: responsive plain HTML, JavaScript, and CSS without a build step or CDN dependencies. QR codes use the bundled MIT-licensed `static/vendor/qrcodegen.js`; preserve its license header.
 - `tests/test_app.py`: API, persistence, and migration tests. `tests/test_deploy.py`: deployment tests with mocked Docker.
 - `tests/mysql_integration.py`: explicit integration test against a new, disposable MySQL test database; never use production.
-- `tests/material-overview.test.cjs`: frontend logic tested with Node's built-in test runner. `tests/install.test.cjs`: app-window reload button.
+- `tests/material-overview.test.cjs`: frontend logic tested with Node's built-in test runner.
 - `compose.mysql.yaml`: explicit MySQL production option; default startup still uses SQLite. Preserve the SQLite volume after switching, and use MySQL backups during active MySQL operation.
 - `compose.yaml` and `Dockerfile`: the Python app only. Do not add an nginx service or container.
 - [Nginx reverse proxy example](docs/deployment.md#nginx-reverse-proxy-example): generic HTTPS configuration for existing host nginx. Keep actual host configuration and certificates outside the repository.
@@ -89,7 +89,7 @@ Start locally with `python3 -m src.app` and open `http://127.0.0.1:49173`. Prese
 - Navigation contains Dashboard, Inventory, Consumption, Upcoming projects, File archive, Lessons learned, Locations, and QR labels with consistent text size, icon width, and alignment; highlight the active tab. Administration stays at the bottom of the sidebar, outside the scrollable primary navigation, and owns browser-local language/printer settings plus shared material type, build plate, and lesson category management, along with read-only app version/database information. Preserve the legacy #build-plates link by redirecting it to #admin/build-plates. Category filters and article/project selectors remain in their respective workflows. Its printer-availability checkbox enables/disables the optional Bluetooth print actions; availability is separate from the actual Bluetooth connection. Locations and available slots share one page; creating/editing a location has its own card.
 - Show the material type only in the card's top-left label, using purple text.
 - Preserve transparent filament, product IDs, repurchase links, grouped cards with counts, and individual consumption history.
-- Browser installation uses `static/manifest.webmanifest`, `static/install.js`, and local PNG icons. Preserve the Filament DB name, standalone display, and network-based data access without a service worker or offline cache.
+- Browser installation uses `static/manifest.webmanifest` and local PNG icons. Installed apps use browser-native controls; do not reintroduce a sidebar refresh toolbar. Preserve the Filament DB name, standalone display, and network-based data access without a service worker or offline cache.
 - Show the version in the footer. Do not reintroduce the text “Dracula palette”.
 
 ## Deployment and versioning

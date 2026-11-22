@@ -456,7 +456,6 @@ class ReadRoutes:
                 "application/manifest+json; charset=utf-8",
             ),
             "/projects.js": ("projects.js", "text/javascript; charset=utf-8"),
-            "/install.js": ("install.js", "text/javascript; charset=utf-8"),
             "/icons/app-180.png": ("icons/app-180.png", "image/png"),
             "/icons/app-192.png": ("icons/app-192.png", "image/png"),
             "/icons/app-512.png": ("icons/app-512.png", "image/png"),

@@ -5,7 +5,6 @@ import { initConsumption, renderUsageHistory, updateUsageFilterOptions } from '.
 import { $, esc, notify, request } from './core.js';
 import { initDashboard, renderDashboard, renderUsageStatistics, updateUsageStatisticsYears } from './dashboard.js';
 import { initFiles, loadFileArchive } from './files.js';
-import { initInstall } from './install.js';
 import { edit, handleSpoolLink, initInventory, populateMaterialTypes, renderInventory, resetSpoolLink } from './inventory.js';
 import { fetchInventory, fetchUsage, inventoryState } from './inventory-data.js';
 import { initKnowledge, loadKnowledgeCategories, showKnowledgeRoute } from './knowledge.js';
@@ -103,7 +102,6 @@ function initApp() {
   initProjects();
   initFiles();
   initKnowledge();
-  initInstall();
   initInventory();
   initDashboard();
   initConsumption();
