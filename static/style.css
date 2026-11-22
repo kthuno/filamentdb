@@ -328,3 +328,22 @@ input:disabled{opacity:.5;cursor:not-allowed}.print-fields{display:grid;grid-tem
 #thermal-guide-status,#thermal-drying-note,#thermal-flow-note{font-size:12px;text-align:left;line-height:1.5}
 .thermal-guide-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;margin:12px 0}
 .thermal-guide-actions a{color:var(--purple)}
+
+/* Editable per-spool thermal previews in the QR labels page. */
+#label-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+.label-gallery-card{min-width:0;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.label-gallery-card h3{color:var(--purple);overflow-wrap:anywhere}
+.gallery-preview{background:white;border-radius:6px;overflow:hidden}
+.gallery-preview svg{display:block;width:100%;height:auto;max-height:400px}
+.gallery-status{font-size:12px;color:var(--muted)}
+.gallery-error{color:var(--red)}
+.label-gallery-card .modal-actions{flex-wrap:wrap}
+
+/* Keep each QR workflow's action beside its heading and output. */
+#qr-labels-view>.quick-panel>.section-title{gap:12px;flex-wrap:wrap}
+#qr-labels-view>.quick-panel>.section-title h2{margin:0}
+#qr-labels-view>.quick-panel>.section-title button{max-width:100%;white-space:normal}
+#a4-labels-section #all-labels-panel{margin-top:20px}
+@media(max-width:600px){#qr-labels-view>.quick-panel>.section-title{align-items:flex-start;flex-direction:column}}
+
+#label-gallery[hidden]{display:none}

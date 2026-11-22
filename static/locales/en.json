@@ -964,6 +964,14 @@
     "labels.high_temp_drying_note": "Within the guide range, a higher temperature improves drying.",
     "labels.less_effective_drying_note": "The guide states that the heatbed is less effective than a blast drying oven.",
     "labels.use_guide": "Use guide values",
-    "labels.guide_source": "Open Bambu Filament Guide (PDF)"
+    "labels.guide_source": "Open Bambu Filament Guide (PDF)",
+    "labels.gallery_title": "Label images",
+    "labels.gallery_generate": "Generate all label images",
+    "labels.gallery_help": "Generate previews using filament guide values. Edit nozzle, bed, flow ratio and drying on each label before printing or downloading. Changes are kept only in this overview. Unknown flow ratio appears as —. Bed and drying use Textured PEI and the guide’s first drying method; other choices are available in the spool label dialog.",
+    "labels.a4_generate": "Show A4 labels",
+    "labels.a4_title": "QR labels on A4",
+    "labels.a4_help": "Select spools and print classic QR labels with up to nine labels per A4 page. Use the label images above for individual labels with temperatures and drying.",
+    "labels.a4_hide": "Hide A4 labels",
+    "labels.gallery_hide": "Hide label images"
   }
 }

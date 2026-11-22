@@ -964,6 +964,14 @@
     "labels.high_temp_drying_note": "Inden for guidens interval giver en højere temperatur bedre tørring.",
     "labels.less_effective_drying_note": "Guiden angiver, at varmepladen er mindre effektiv end en varmluft-tørreovn.",
     "labels.use_guide": "Brug guidens værdier",
-    "labels.guide_source": "Åbn Bambu Filament Guide (PDF)"
+    "labels.guide_source": "Åbn Bambu Filament Guide (PDF)",
+    "labels.gallery_title": "Labelbilleder",
+    "labels.gallery_generate": "Dan alle labelbilleder",
+    "labels.gallery_help": "Dan previews med filamentguidens værdier. Redigér dyse, plade, flow ratio og tørring på den enkelte label inden print eller download. Ændringer gemmes kun i denne oversigt. Ukendt flow ratio vises som —. Plade og tørring bruger Textured PEI og guidens første tørremetode; andre valg findes i spolelabel-dialogen.",
+    "labels.a4_generate": "Vis A4-labels",
+    "labels.a4_title": "QR-labels på A4",
+    "labels.a4_help": "Vælg spoler og print klassiske QR-labels med op til ni labels pr. A4-side. Brug labelbillederne ovenfor til enkeltlabels med temperaturer og tørring.",
+    "labels.a4_hide": "Skjul A4-labels",
+    "labels.gallery_hide": "Skjul labelbilleder"
   }
 }

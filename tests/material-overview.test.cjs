@@ -886,3 +886,44 @@ test('QR material heading uses a safe spool color and escapes the material name'
   assert.equal(vm.runInContext("labelMaterial({material:'PLA <Basic>',color_hex:'#50fa7b'})",context), '<strong class="label-material" style="--label-color:#50fa7b">PLA &lt;Basic&gt;</strong>');
   assert.match(vm.runInContext("labelMaterial({material:'PETG',color_hex:'red;display:none'})",context), /--label-color:#282a36/);
 });
+
+test('A4 action reveals its adjacent workflow and generates selectable labels', () => {
+  const html=fs.readFileSync('static/index.html','utf8');
+  const view=html.slice(html.indexOf('<section id="qr-labels-view"'),html.indexOf('<footer>'));
+  const gallery=view.slice(view.indexOf('<section id="label-gallery-panel"'),view.indexOf('<section id="a4-labels-section"'));
+  const a4=view.slice(view.indexOf('<section id="a4-labels-section"'));
+  assert.ok(gallery.includes('id="label-gallery-open"'));
+  assert.ok(gallery.includes('id="label-gallery"'));
+  assert.ok(!gallery.includes('id="all-labels-open"'));
+  assert.ok(a4.indexOf('id="all-labels-open"')<a4.indexOf('id="all-labels-panel"'));
+  assert.ok(a4.includes('id="all-labels-pages"'));
+  assert.ok(a4.includes('data-i18n-text="0:labels.a4_generate"'));
+  assert.ok(!view.slice(0,view.indexOf('<section id="label-gallery-panel"')).includes('<button'));
+  context.inventoryState.spools=context.bulkRecords;
+  nodes.get('#all-labels-panel').hidden=true;
+  let scrolled=0;
+  nodes.get('#all-labels-panel').scrollIntoView=()=>{scrolled++;};
+  nodes.get('#all-labels-open').onclick();
+  assert.equal(nodes.get('#all-labels-panel').hidden,false);
+  assert.equal(scrolled,1);
+  assert.equal((nodes.get('#all-labels-pages').innerHTML.match(/type="checkbox"/g)||[]).length,10);
+  assert.equal(nodes.get('#all-labels-print').disabled,false);
+  delete nodes.get('#all-labels-panel').scrollIntoView;
+});
+
+test('A4 toggle collapses and reopens without losing checkbox selection', () => {
+  context.inventoryState.spools=context.bulkRecords;
+  nodes.get('#all-labels-panel').hidden=true;
+  nodes.get('#all-labels-open').onclick();
+  nodes.get('#all-labels-deselect-all').onclick();
+  nodes.get('#all-labels-pages').onchange({target:{closest:()=>({dataset:{labelSpool:'1'},checked:true})}});
+  const selected=nodes.get('#selected-labels-pages').innerHTML;
+  nodes.get('#all-labels-open').onclick();
+  assert.equal(nodes.get('#all-labels-panel').hidden,true);
+  assert.equal(nodes.get('#all-labels-open').textContent,'Vis A4-labels');
+  assert.equal(nodes.get('#selected-labels-pages').dataset.printActive,'false');
+  nodes.get('#all-labels-open').onclick();
+  assert.equal(nodes.get('#all-labels-panel').hidden,false);
+  assert.equal(nodes.get('#all-labels-open').textContent,'Skjul A4-labels');
+  assert.equal(nodes.get('#selected-labels-pages').innerHTML,selected);
+});
