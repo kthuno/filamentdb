@@ -20,7 +20,7 @@ relevant. Maintainers use squash merging.
 Read [AGENTS.md](AGENTS.md) and the [development guide](docs/development.md).
 Use Python 3.11 or later and Node.js 24 for the frontend checks. No frontend
 package installation or build step is needed. Run the documented tests, syntax
-checks, and Ruff checks before submitting changes. CI tests Python 3.11 and 3.13.
+checks, and Ruff checks before submitting changes. CI tests Python 3.11, 3.13, and 3.15, and builds and smoke-tests the Docker image.
 MySQL integration tests are separate and require a disposable test database.
 
 Preserve existing inventory and history. Test with temporary databases, never

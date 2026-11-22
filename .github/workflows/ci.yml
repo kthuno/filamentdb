@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ['3.11', '3.13']
+        python: ['3.11', '3.13', '3.15']
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -63,3 +63,35 @@ jobs:
           for file in static/*.js; do node --check "$file"; done
       - name: Run frontend tests
         run: node --experimental-vm-modules --test tests/*.test.cjs
+
+  docker:
+    name: Docker build and smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build production image
+        run: docker build --tag filamentdb-ci:test .
+      - name: Start isolated container
+        run: >-
+          docker run --detach --name filamentdb-ci --network none --read-only
+          --tmpfs /tmp --tmpfs /data:uid=10001,gid=10001 filamentdb-ci:test
+      - name: Check runtime dependencies and API startup
+        shell: bash
+        run: |
+          docker exec filamentdb-ci python -c 'import sys, sqlite3, pymysql, cryptography; print(sys.version); print("SQLite", sqlite3.sqlite_version)'
+          for attempt in {1..30}; do
+            if docker exec filamentdb-ci python -c 'import json, urllib.request; opener = urllib.request.build_opener(urllib.request.ProxyHandler({})); version = json.load(opener.open("http://127.0.0.1:49173/api/version", timeout=2)); inventory = json.load(opener.open("http://127.0.0.1:49173/api/filaments", timeout=2)); assert version["database"] == "sqlite"; assert inventory == []; print(version)' 2>/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs filamentdb-ci
+          exit 1
+      - name: Show container logs and remove test container
+        if: always()
+        run: |
+          docker logs filamentdb-ci || true
+          docker rm --force filamentdb-ci || true

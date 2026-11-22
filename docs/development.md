@@ -9,12 +9,12 @@ Run commands from the project root. Local development requires Python 3.11+; fro
 Create an isolated environment from the project root:
 
 ```sh
-python3.13 -m venv .venv
+python3.15 -m venv .venv
 source .venv/bin/activate
 python -m pip install ruff==0.17.6
 ```
 
-Python 3.11 or later is supported; Python 3.13 matches the container runtime.
+Python 3.11 or later is supported; Python 3.15 matches the container runtime.
 VS Code uses `.venv/bin/python` and discovers the unittest suite in `tests/`.
 The MySQL driver is optional for local SQLite development. Install it with
 `python -m pip install -r requirements-mysql.txt` only when needed.
@@ -47,7 +47,11 @@ Test MySQL separately with `python3 tests/mysql_integration.py` after installing
 Agents do not perform visual browser checks. The user performs visual verification manually; see the [agent guide](../AGENTS.md).
 
 CI runs on GitHub-hosted runners for pushes and pull requests to `main`.
-Checks are named `Python 3.11`, `Python 3.13`, `Python lint`, and `Frontend`.
+Checks are named `Python 3.11`, `Python 3.13`, `Python 3.15`, `Python lint`,
+`Frontend`, and `Docker build and smoke`. The Docker check builds the production
+image and verifies dependency imports and API startup using an isolated container
+with temporary data, no published ports, and no network access. It does not test
+a connection to MySQL.
 The workflow has read-only repository access, no deployment step, and no
 production secrets. Actions are pinned to full commit hashes; Dependabot proposes
 weekly updates for Actions, Python dependencies, and the Docker base image.
