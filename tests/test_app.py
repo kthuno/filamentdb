@@ -1644,8 +1644,24 @@ class ApiTest(unittest.TestCase):
                     )
         self.assertIn("/usage-model.js", visited)
         self.assertIn("/labels.js", visited)
+        self.assertIn("/thermal-labels.js", visited)
+        self.assertIn("/vendor/bambu-lab-logo.js", visited)
         self.assertIn("/actions.js", visited)
         self.assertIn("/vendor/qrcodegen.js", visited)
+
+    def test_bambu_material_profile_lookup(self):
+        from urllib.parse import urlencode
+
+        query = urlencode({"manufacturer": "BambuLab", "material": "PAHT CF"})
+        with self.request("/api/material-profiles?" + query) as response:
+            profile = json.load(response)
+        self.assertEqual(profile["material"], "PAHT-CF")
+        self.assertEqual(profile["nozzle_temperature_c"], [260, 300])
+        self.assertEqual(profile["drying_conditions"][0]["hours"], [8, 12])
+        self.assertIsNone(profile["flow_ratio"])
+        query = urlencode({"manufacturer": "Other", "material": "PAHT CF"})
+        with self.request("/api/material-profiles?" + query) as response:
+            self.assertIsNone(json.load(response))
 
     def test_static_and_path_isolation(self):
         self.assertRegex(self.request("/").read(), rb"<h1[^>]*>Lager")
