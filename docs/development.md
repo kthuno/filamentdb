@@ -4,6 +4,34 @@
 
 Run commands from the project root. Local development requires Python 3.11+; frontend tests require Node.js. The frontend has no build step and needs no npm installation.
 
+## Local environment
+
+Create an isolated environment from the project root:
+
+```sh
+python3.13 -m venv .venv
+source .venv/bin/activate
+python -m pip install ruff==0.17.6
+```
+
+Python 3.11 or later is supported; Python 3.13 matches the container runtime.
+VS Code uses `.venv/bin/python` and discovers the unittest suite in `tests/`.
+The MySQL driver is optional for local SQLite development. Install it with
+`python -m pip install -r requirements-mysql.txt` only when needed.
+
+Create a focused branch from an up-to-date main:
+
+```sh
+git switch main
+git pull --ff-only
+git switch -c feature/describe-the-change
+```
+
+Push the branch and open a pull request. The protected main branch accepts
+changes through pull requests with passing checks. Keep personal workspace files
+in the ignored `local/` directory. Never copy production inventory into a test
+fixture or commit local environment files.
+
 ## Automated checks
 
 ```sh
