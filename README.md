@@ -2,6 +2,8 @@
 
 A web application for managing filament inventory, prints, and lessons learned, with a Dracula theme and JSON-based interface translations. Data is stored on the server and shared across your devices.
 
+![Filament DB dashboard showing inventory totals, active spools, and consumption statistics](docs/images/dashboard.png)
+
 ## Quick start
 
 Requires Python 3.11 or later. Run from the project root:
