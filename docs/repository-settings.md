@@ -71,7 +71,7 @@ any files already present in the destination before copying or committing.
 Set VERSION to `1.0.0` only in the new checkout. Use the owner's verified GitHub
 noreply email for the initial commit. Run the full checks and a secret scan of
 the actual staged files before pushing the single initial commit. Do not run the
-deployment script to prepare a release: it increments VERSION and deploys.
+deployment script to prepare a release: it deploys the running app. An explicit --bump also changes VERSION.
 
 Create the first commit before enforcing required status checks, then enable the
 rules after the initial CI run. Keep the repository private during preparation;

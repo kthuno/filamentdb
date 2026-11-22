@@ -18,7 +18,7 @@ docker compose --env-file .env --env-file .env.mysql config --quiet
 docker compose --env-file .env --env-file .env.mysql up -d --build --wait --remove-orphans
 ```
 
-Continue using `python3 -m src.deploy` for updates with version increments. The commands above require both files; without an OpenAI environment file, use the existing command with only `.env.mysql`. Use `config --quiet`, as ordinary `config` prints expanded environment values, including credentials.
+Continue using `python3 -m src.deploy` for deployment using the existing VERSION. Request a version increment explicitly with `--bump` only when intended. The commands above require both files; without an OpenAI environment file, use the existing command with only `.env.mysql`. Use `config --quiet`, as ordinary `config` prints expanded environment values, including credentials.
 
 Direct Python startup reads only the process environment. A trusted local `.env` with shell-compatible assignments can be loaded into the current terminal before starting:
 

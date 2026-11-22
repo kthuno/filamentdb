@@ -1,4 +1,4 @@
-"""Bump major, minor or build version and deploy with Docker Compose."""
+"""Deploy the current version with Docker Compose; optionally bump it explicitly."""
 
 import argparse
 import fcntl
@@ -12,10 +12,12 @@ ROOT = Path(__file__).resolve().parents[1]
 IMAGE_LABEL = "dk.filament-db.app=true"
 
 
-def next_version(current, bump="build"):
+def next_version(current, bump=None):
     match = re.fullmatch(r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)", current)
     if not match:
         raise ValueError("VERSION skal indeholde et versionsnummer som 0.1.0.")
+    if bump is None:
+        return current
     major, minor, build = map(int, match.groups())
     if bump == "major":
         return f"{major + 1}.0.0"
@@ -27,12 +29,14 @@ def next_version(current, bump="build"):
 
 
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description="Øg versionen og deploy Filament DB.")
+    parser = argparse.ArgumentParser(
+        description="Deploy Filament DB med den aktuelle VERSION."
+    )
     parser.add_argument(
         "--bump",
         choices=("major", "minor", "build"),
-        default="build",
-        help="Versionsdel: major (x), minor (y) eller build (z, standard).",
+        default=None,
+        help="Øg kun versionen ved eksplicit valg: major (x), minor (y) eller build (z).",
     )
     parser.add_argument(
         "--no-push",
@@ -160,8 +164,8 @@ def cleanup_images(previous):
         )
 
 
-def deploy(bump="build", env_file=None, clean_images=False):
-    # Keep concurrent deployments from reserving the same version.
+def deploy(bump=None, env_file=None, clean_images=False):
+    # Serialize deployments from this checkout, including explicit version bumps.
     with (ROOT / ".deploy.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         command = compose_command(env_file)
@@ -169,10 +173,11 @@ def deploy(bump="build", env_file=None, clean_images=False):
         previous = current_image_ids(env_file) if clean_images else set()
         version_file = ROOT / "VERSION"
         version = next_version(version_file.read_text().strip(), bump)
-        # Reserve before building: failed deployments never reuse a version.
-        temporary = ROOT / ".VERSION.tmp"
-        temporary.write_text(version + "\n")
-        temporary.replace(version_file)
+        if bump is not None:
+            # Reserve an explicitly requested bump before building; never roll it back.
+            temporary = ROOT / ".VERSION.tmp"
+            temporary.write_text(version + "\n")
+            temporary.replace(version_file)
         print(f"Deployer Filament DB v{version} …", flush=True)
         subprocess.run(
             [
@@ -247,8 +252,8 @@ def main(argv=None):
             )
         else:
             message = (
-                f"Deploy mislykkedes: {error}. En eventuelt reserveret version beholdes; "
-                "næste deploy bruger næste nummer."
+                f"Deploy mislykkedes: {error}. VERSION ændres kun med --bump; "
+                "en eksplicit versionsøgning beholdes ved fejl."
             )
         print(message, file=sys.stderr)
         return 1
