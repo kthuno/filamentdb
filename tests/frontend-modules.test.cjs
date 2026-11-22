@@ -63,6 +63,7 @@ function browserFixture(hash='') {
     '/api/consumption':[{id:1,filament_id:1,name:'PLA',material:'PLA',grams:20,created_at:'2026-11-01 10:00:00'}],
     '/api/filaments/1/consumption':[],
     '/api/version':{version:'1.2.3',database:'sqlite'},
+    '/api/system-status':{database_online:true,response_ms:1,database:'sqlite'},
     '/api/files':[], '/api/build-plates':[], '/api/projects':[],
     '/api/knowledge-categories':[], '/api/knowledge-tags':[], '/api/prints':[],
     '/api/knowledge?':[],
@@ -110,6 +111,7 @@ test('deep links initialize their feature once after imports have resolved', asy
   for(const [hash,endpoint] of [
     ['#files','/api/files'],['#build-plates','/api/build-plates'],
     ['#projects','/api/projects'],['#knowledge','/api/knowledge-categories'],
+    ['#admin','/api/knowledge-categories'],['#admin/build-plates','/api/build-plates'],['#admin/categories','/api/knowledge-categories'],
     ['#spool/stable','/api/filaments/1/consumption'],
   ]){
     const {context,nodes,calls}=browserFixture(hash);
@@ -130,4 +132,21 @@ test('dashboard print errors stay visible on dashboard and release the button', 
   await nodes.get('#dashboard-print').onclick();
   assert.equal(nodes.get('#dashboard-error').textContent,'offline');
   assert.equal(nodes.get('#dashboard-print').disabled,false);
+});
+
+
+test('Administration keeps independent settings usable when category loading fails',async()=>{
+  const {context,nodes}=browserFixture('#admin');
+  const fetch=context.fetch;
+  context.fetch=async(url,options)=>{
+    if(url==='/api/knowledge-categories')throw new Error('Categories unavailable');
+    return fetch(url,options);
+  };
+  const {namespace}=await loadFrontend(context,[],{init:false,exposeInternals:false});
+  await namespace.startApp();
+  assert.equal(nodes.get('#admin-view').hidden,false);
+  assert.equal(nodes.get('#knowledge-category-error').textContent,'Categories unavailable');
+  assert.ok(!nodes.get('#build-plate-error').textContent);
+  assert.ok(nodes.get('#build-plate-list').innerHTML);
+  assert.ok(nodes.get('#language-select').innerHTML);
 });

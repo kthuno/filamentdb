@@ -22,7 +22,7 @@ API: `POST /api/projects/import` receives raw 3MF bytes and optional URL-encoded
 
 ## Build plates
 
-Under **Build plates**, create, rename, and delete plate types. **Textured PEI** is seeded once during migration. Names are case-insensitively unique. Deleted defaults are not recreated on restart.
+Under **Administration → Build plates**, create, rename, and delete plate types. The former **Build plates** navigation item is removed; existing `#build-plates` links redirect to `#admin/build-plates`. Selecting a plate for an individual project remains in the project dialog. **Textured PEI** is seeded once during migration. Names are case-insensitively unique. Deleted defaults are not recreated on restart.
 
 Upcoming projects also have an optional **Filament type(s)** field. Enter values such as `PLA Basic, PETG HF`, comma-separated. They appear on cards and as a reference during recording but do not select actual spools or change inventory. Up to 20 types are saved, with case-insensitive duplicates removed. This planned material selection is separate from configured 3MF profiles and calculated consumption. API field `filament_types` is a string list.
 

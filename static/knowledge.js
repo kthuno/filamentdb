@@ -1,4 +1,4 @@
-import { t, th, getLocale } from './i18n.js';
+import { t, th, tn, getLocale } from './i18n.js';
 import { $, esc, notify, request } from './core.js';
 import { PrintEditor } from './prints.js';
 /* Knowledge stays independent of inventory mutations. */
@@ -21,8 +21,23 @@ function knowledgeRoute() { return location.hash === '#knowledge' || location.ha
 function renderKnowledgeCategories() {
   const selected = $('#knowledge-category_id').value;
   const total = knowledgeCategories.reduce((sum, category) => sum + Number(category.article_count || 0), 0);
-  const categoryButton = (id, name, count) => `<button type="button" class="knowledge-category-tile ${String(id) === selected ? 'selected' : ''}" data-knowledge-category="${id}" aria-pressed="${String(id) === selected}"><span>${esc(name)}</span><small>${count} ${count === 1 ? 'artikel' : 'artikler'}</small></button>`;
-  $('#knowledge-category-list').innerHTML = categoryButton('', t("ui.alle_kategorier_9ccf80"), total) + knowledgeCategories.map(category => `<div class="knowledge-category-item">${categoryButton(category.id, category.name, Number(category.article_count || 0))}<div class="knowledge-category-actions"><button type="button" data-knowledge-category-edit="${category.id}" aria-label="${th("ui.omdoeb_kategori_b5ff6b", {p2: esc(category.name)})}">${th("ui.omdoeb_f917d1")}</button><button type="button" data-knowledge-category-delete="${category.id}" aria-label="${th("ui.slet_kategori_58198c", {p4: esc(category.name)})}" ${Number(category.article_count || 0) > 0 ? th("ui.disabled_title_flyt_artiklerne_til_en_anden_kate_3fb377") : ''}>${th("ui.slet_b9f4c0")}</button></div></div>`).join('');
+  const categoryButton = (id, name, count) => `<button type="button" class="knowledge-category-tile ${String(id) === selected ? 'selected' : ''}" data-knowledge-category="${id}" aria-pressed="${String(id) === selected}"><span>${esc(name)}</span><small>${tn('admin.one_article','admin.many_articles',count,true)}</small></button>`;
+  $('#knowledge-category-list').innerHTML = categoryButton('', t("ui.alle_kategorier_9ccf80"), total) + knowledgeCategories.map(category => categoryButton(category.id,category.name,Number(category.article_count || 0))).join('');
+}
+function renderKnowledgeCategoryAdmin() {
+  $('#knowledge-category-admin-list').innerHTML=knowledgeCategories.map(category=>`<div class="knowledge-category-item"><div class="knowledge-category-tile"><span>${esc(category.name)}</span><small>${tn('admin.one_article','admin.many_articles',Number(category.article_count || 0),true)}</small></div><div class="knowledge-category-actions"><button type="button" data-knowledge-category-edit="${category.id}" aria-label="${th("ui.omdoeb_kategori_b5ff6b",{p2:esc(category.name)})}">${th("ui.omdoeb_f917d1")}</button><button type="button" data-knowledge-category-delete="${category.id}" aria-label="${th("ui.slet_kategori_58198c",{p4:esc(category.name)})}" ${Number(category.article_count || 0)>0 ? th("ui.disabled_title_flyt_artiklerne_til_en_anden_kate_3fb377") : ''}>${th("ui.slet_b9f4c0")}</button></div></div>`).join('');
+}
+let knowledgeCategoryVersion=0;
+async function loadKnowledgeCategories() {
+  const version=++knowledgeCategoryVersion;
+  const categories=await request('/api/knowledge-categories');
+  if(version!==knowledgeCategoryVersion)return;
+  knowledgeCategories=categories;
+  const filter=$('#knowledge-category_id'),selected=filter.value;
+  filter.innerHTML=`<option value="">${th("ui.alle_kategorier_9ccf80")}</option>`+categories.map(category=>`<option value="${category.id}">${esc(category.name)}</option>`).join('');
+  filter.value=categories.some(category=>String(category.id)===selected) ? selected : '';
+  renderKnowledgeCategories();
+  renderKnowledgeCategoryAdmin();
 }
 function renderKnowledgeTagOptions() {
   $('#knowledge-tag-options').innerHTML = knowledgeTags.map(tag => `<option value="${esc(tag.name)}" label="${tag.article_count} ${tag.article_count === 1 ? 'artikel' : 'artikler'}"></option>`).join('');
@@ -56,13 +71,11 @@ async function showKnowledgeRoute() {
   $('#knowledge-edit').disabled = true;
   $('#knowledge-delete').disabled = true;
   try {
-    const metadata = await Promise.all([request('/api/knowledge-categories'),request('/api/prints'),request('/api/knowledge-tags')]);
+    const metadata = await Promise.all([loadKnowledgeCategories(),request('/api/prints'),request('/api/knowledge-tags')]);
     if (version !== knowledgeRouteVersion || hash !== location.hash) return;
-    [knowledgeCategories,knowledgePrints,knowledgeTags] = metadata;
+    [,knowledgePrints,knowledgeTags] = metadata;
     renderKnowledgeTagOptions();
     $('#knowledge-ai-print').innerHTML = `<option value="">${th("ui.vaelg_print_0d29ab")}</option>` + knowledgePrints.filter(p => ['completed','failed'].includes(p.status)).map(p => `<option value="${p.id}">${esc(p.name)} · ${esc(p.print_date)}</option>`).join('');
-    const filter = $('#knowledge-category_id'), selected = filter.value;
-    filter.innerHTML = `<option value="">${th("ui.alle_kategorier_9ccf80")}</option>` + knowledgeCategories.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join(''); filter.value = selected;
     renderKnowledgeCategories();
     const match = hash.match(/^#knowledge\/(\d+)$/);
     $('#knowledge-detail').hidden = !match;
@@ -103,7 +116,7 @@ function renderKnowledgeSources() {
 }
 async function editKnowledge(article=null, proposal=null) {
   try {
-    [knowledgeCategories,knowledgePrints] = await Promise.all([request('/api/knowledge-categories'),request('/api/prints')]);
+    [,knowledgePrints] = await Promise.all([loadKnowledgeCategories(),request('/api/prints')]);
     knowledgeEditingId = article?.id ?? null;
     knowledgeProposal = proposal;
     const fields = proposal ? {...proposal.suggestion, status:'draft', sources:[{print_id:proposal.source.print_id,note:'',relationship_type:'source'}]} : article;
@@ -214,7 +227,7 @@ function initKnowledge() {
     finally { $('#knowledge-save').disabled=false; }
   };
   $('#knowledge-category-cancel').onclick = resetKnowledgeCategoryForm;
-  $('#knowledge-category-list').onclick = async event => {
+  $('#knowledge-category-admin-list').onclick = async event => {
     const editButton = event.target.closest('[data-knowledge-category-edit]');
     if (editButton && editButton.dataset.knowledgeCategoryEdit !== undefined) {
       const category = knowledgeCategories.find(c => c.id === Number(editButton.dataset.knowledgeCategoryEdit));
@@ -230,14 +243,17 @@ function initKnowledge() {
       const category = knowledgeCategories.find(c => c.id === Number(deleteButton.dataset.knowledgeCategoryDelete));
       if (!category || category.article_count > 0 || !confirm(t("ui.slet_kategorien_7f91af", {p0: category.name}))) return;
       deleteButton.disabled = true;
+      $('#knowledge-category-error').textContent='';
       try {
         await request(`/api/knowledge-categories/${category.id}`, {method:'DELETE'});
         if ($('#knowledge-category_id').value === String(category.id)) $('#knowledge-category_id').value = '';
         if (editingKnowledgeCategoryId === category.id) resetKnowledgeCategoryForm();
-        await showKnowledgeRoute(); notify(t("ui.kategorien_er_slettet_77bba8"));
-      } catch(error) { $('#knowledge-error').textContent = error.message; deleteButton.disabled = false; }
+        await loadKnowledgeCategories(); notify(t("ui.kategorien_er_slettet_77bba8"));
+      } catch(error) { $('#knowledge-category-error').textContent = error.message; deleteButton.disabled = false; }
       return;
     }
+  };
+  $('#knowledge-category-list').onclick = async event => {
     const button = event.target.closest('[data-knowledge-category]');
     if (!button) return;
     $('#knowledge-category_id').value = button.dataset.knowledgeCategory;
@@ -252,9 +268,9 @@ function initKnowledge() {
   $('#knowledge-tag').onchange = () => loadKnowledge();
   $('#knowledge-filters').onsubmit = event => { event.preventDefault(); loadKnowledge(); };
   $('#knowledge-category-form').onsubmit = async event => {
-    event.preventDefault(); const button=$('#knowledge-category-add'); button.disabled=true;
-    try { const editing = editingKnowledgeCategoryId !== null; await request('/api/knowledge-categories'+(editing ? '/'+editingKnowledgeCategoryId : ''),{method:editing?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('#knowledge-category-name').value})}); resetKnowledgeCategoryForm(); await showKnowledgeRoute(); notify(editing ? t("ui.kategorien_er_omdoebt_d00330") : t("ui.kategorien_er_oprettet_de25a2")); }
-    catch(err) { $('#knowledge-error').textContent=err.message; } finally {button.disabled=false;}
+    event.preventDefault(); const button=$('#knowledge-category-add'); button.disabled=true; $('#knowledge-category-error').textContent='';
+    try { const editing = editingKnowledgeCategoryId !== null; await request('/api/knowledge-categories'+(editing ? '/'+editingKnowledgeCategoryId : ''),{method:editing?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('#knowledge-category-name').value})}); resetKnowledgeCategoryForm(); await loadKnowledgeCategories(); notify(editing ? t("ui.kategorien_er_omdoebt_d00330") : t("ui.kategorien_er_oprettet_de25a2")); }
+    catch(err) { $('#knowledge-category-error').textContent=err.message; } finally {button.disabled=false;}
   };
   $('#knowledge-ai-generate').onclick = () => generateKnowledgeProposal(Number($('#knowledge-ai-print').value), $('#knowledge-ai-generate'), '#knowledge-ai-error');
   $('#print-knowledge-generate').onclick = () => {
@@ -266,4 +282,4 @@ function initKnowledge() {
   };
 }
 
-export { initKnowledge, showKnowledgeRoute };
+export { initKnowledge, loadKnowledgeCategories, showKnowledgeRoute };

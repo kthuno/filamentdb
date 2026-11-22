@@ -78,6 +78,12 @@ class Handler(ReadRoutes, BaseHTTPRequestHandler):
             )
         ):
             return "knowledge_categories", int(parts[2]) if len(parts) == 3 else None
+        if (
+            resource == "material-types"
+            and len(parts) == 2
+            and self.command in {"POST", "PUT", "DELETE"}
+        ):
+            return "material_types", None
         if resource == "knowledge":
             if len(parts) == 2 and self.command == "POST":
                 return "knowledge", None
@@ -256,6 +262,11 @@ class Handler(ReadRoutes, BaseHTTPRequestHandler):
 
     def apply_mutation(self, conn, resource, identity):
         """Dispatch one write within the transaction, returning its success status."""
+        if resource == "material_types":
+            from .materials import mutate_material
+
+            mutate_material(conn, self.command, self.read_json())
+            return 201 if self.command == "POST" else 200
         if resource.startswith("knowledge"):
             from .knowledge import (
                 delete_article,

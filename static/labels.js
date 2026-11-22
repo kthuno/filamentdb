@@ -3,6 +3,7 @@ import { $, compareLocations, esc, productLink, request } from './core.js';
 import { inventoryState } from './inventory-data.js';
 import qrcodegen from './vendor/qrcodegen.js';
 import { LABEL_SIZES, thermalLabel, labelPng } from './thermal-labels.js';
+import { initM220Printing } from './m220-printing.js';
 // QR label rendering, selection and print lifecycle.
 function spoolLink(spool) {
   const url = new URL(window.location.href);
@@ -185,9 +186,9 @@ function galleryCard(entry) {
       ${['nozzle','bed','flow','drying'].map(input).join('')}
       ${select('format','labels.filetype',[['png',t('labels.png')],['svg',t('labels.svg')]])}
     </div>
-    <p class="gallery-error" role="alert"></p>
+    <p class="gallery-error" role="alert"></p><p class="m220-status" data-m220-status role="status" hidden></p>
     <div class="modal-actions"><button type="button" data-gallery-action="download">${th('labels.download')}</button>
-    <button type="button" class="primary" data-gallery-action="print">${th('ui.print_label_a1aa7b')}</button></div>
+    <button type="button" data-m220-print="${spool.id}" hidden>${th('m220.print')}</button><button type="button" class="primary" data-gallery-action="print">${th('ui.print_label_a1aa7b')}</button></div>
   </article>`;
 }
 function refreshGalleryCard(card,entry) {
@@ -365,6 +366,7 @@ function openLabel(id) {
 }
 
 function initLabels() {
+  initM220Printing({getDialogLabel:()=>currentThermalLabel,getGalleryLabel:id=>galleryLabels.get(id)?.label});
   $('#label-gallery-open').onclick=toggleLabelGallery;
   $('#label-gallery').oninput=editGalleryLabel;
   $('#label-gallery').onchange=editGalleryLabel;

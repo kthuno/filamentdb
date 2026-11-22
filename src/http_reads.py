@@ -5,6 +5,8 @@ import csv
 import io
 import json
 import os
+from contextlib import closing
+from time import perf_counter
 from urllib.parse import parse_qs, quote, urlparse
 
 from .config import ROOT, VERSION
@@ -71,14 +73,14 @@ class ReadRoutes:
                 ]
             return self.respond(200, rows)
         if path == "/api/material-types":
+            from .materials import list_materials
+
             with connect() as conn:
-                names = [
-                    row["name"]
-                    for row in conn.execute(
-                        "SELECT name FROM material_types ORDER BY name COLLATE NOCASE"
-                    )
-                ]
-            return self.respond(200, names)
+                materials = list_materials(conn)
+            details = parse_qs(urlparse(self.path).query).get("details") == ["1"]
+            return self.respond(
+                200, materials if details else [item["name"] for item in materials]
+            )
         if path == "/api/material-profiles":
             from .material_profiles import lookup
 
@@ -99,6 +101,33 @@ class ReadRoutes:
                     )
                 ]
             return self.respond(200, rows)
+        if path == "/api/system-status":
+            backend = os.environ.get("DATABASE_BACKEND", "sqlite")
+            try:
+                with closing(connect(readonly=True)) as conn:
+                    started = perf_counter()
+                    # An empty inventory is healthy too: successful execution is enough.
+                    conn.execute("SELECT id FROM filaments LIMIT 1").fetchone()
+                    response_ms = round((perf_counter() - started) * 1000, 2)
+            except Exception as error:  # noqa: BLE001 - diagnostic boundary for both DB drivers
+                # Never expose connection credentials, paths, or SQL error details.
+                self.log_error("Database status unavailable (%s)", type(error).__name__)
+                return self.respond(
+                    503,
+                    {
+                        "database": backend,
+                        "database_online": False,
+                        "response_ms": None,
+                    },
+                )
+            return self.respond(
+                200,
+                {
+                    "database": backend,
+                    "database_online": True,
+                    "response_ms": response_ms,
+                },
+            )
         if path == "/api/version":
             return self.respond(
                 200,
@@ -403,6 +432,15 @@ class ReadRoutes:
                 "thermal-labels.js",
                 "text/javascript; charset=utf-8",
             ),
+            "/m220-bluetooth.js": (
+                "m220-bluetooth.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/administration.js": (
+                "administration.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/m220-printing.js": ("m220-printing.js", "text/javascript; charset=utf-8"),
             "/vendor/bambu-lab-logo.js": (
                 "vendor/bambu-lab-logo.js",
                 "text/javascript; charset=utf-8",

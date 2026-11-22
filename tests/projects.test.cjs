@@ -177,6 +177,8 @@ test('opening the build plates route directly loads its saved plate types', asyn
   fresh.window.location.hash='#build-plates';
 
   await vm.runInContext('switchView()',fresh);
-  assert.deepEqual(calls,['/api/build-plates']);
+  assert.equal(fresh.window.location.hash,'#admin/build-plates');
+  assert.deepEqual(calls,['/api/system-status','/api/material-types?details=1','/api/build-plates','/api/knowledge-categories']);
+  assert.equal(query('#admin-view').hidden,false);
   assert.match(query('#build-plate-list').innerHTML,/Smooth PEI/);
 });

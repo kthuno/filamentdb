@@ -710,12 +710,13 @@ test('pending prints display Afventer without counting as waste', () => {
   assert.equal(vm.runInContext('summarizeUsage(usageState.entries).wasteGrams',context),0);
 });
 
-test('locations, build plates and QR labels have independent navigation and data loading', async()=>{
-  const oldLoad=context.load,oldPlates=context.loadBuildPlates;
+test('locations, QR labels and Administration have independent navigation and data loading', async()=>{
+  const oldLoad=context.load,oldPlates=context.loadBuildPlates,oldCategories=context.loadKnowledgeCategories;
   const calls=[];
   context.load=async()=>calls.push('inventory');
   context.loadBuildPlates=async()=>calls.push('plates');
-  const pages=['archive','usage','projects','knowledge','locations','build-plates','qr-labels'];
+  context.loadKnowledgeCategories=async()=>calls.push('categories');
+  const pages=['archive','usage','projects','knowledge','locations','qr-labels','admin'];
   const attributeSetters=new Map();
   try {
     for(const page of pages) {
@@ -723,7 +724,7 @@ test('locations, build plates and QR labels have independent navigation and data
       attributeSetters.set(element,element.setAttribute);
       element.setAttribute=function(name,value){this[name]=value;};
     }
-    for(const page of ['locations','build-plates','qr-labels']) {
+    for(const page of ['locations','qr-labels','admin']) {
       context.window.location.hash='#'+page;
       await vm.runInContext('switchView()',context);
       for(const other of pages) {
@@ -731,20 +732,23 @@ test('locations, build plates and QR labels have independent navigation and data
         assert.equal(nodes.get('#nav-'+other)['aria-current'],other===page?'page':'false');
       }
     }
-    assert.deepEqual(calls,['inventory','plates','inventory']);
+    assert.deepEqual(calls,['inventory','inventory','plates','categories']);
   } finally {
     context.load=oldLoad;
+    context.loadKnowledgeCategories=oldCategories;
     if(oldPlates===undefined) delete context.loadBuildPlates; else context.loadBuildPlates=oldPlates;
     for(const [element,setter] of attributeSetters) element.setAttribute=setter;
     context.window.location.hash='#archive';
   }
 });
 
-test('saved material suggestions escape names and retain defaults', () => {
+test('database material suggestions escape names and do not retain hardcoded defaults', () => {
   vm.runInContext('populateMaterialTypes(["PLA Sparkle", "<PETG>"])',context);
   assert.match(nodes.get('#material-list').innerHTML,/PLA Sparkle/);
   assert.match(nodes.get('#material-list').innerHTML,/&lt;PETG&gt;/);
   assert.doesNotMatch(nodes.get('#material-list').innerHTML,/<PETG>/);
+  vm.runInContext('populateMaterialTypes([])',context);
+  assert.equal(nodes.get('#material-list').innerHTML,'');
 });
 
 test('clicking an overview type filters matching rolls including normalized variants', () => {
@@ -841,7 +845,7 @@ test('QR label selection prints only checked rolls and repacks selected labels',
 test('inline QR overview prepares only its selected print content and respects single-label printing', () => {
   vm.runInContext('inventoryState.spools = bulkRecords; showAllLabels()',context);
   nodes.get('#qr-labels-view').hidden = false;
-  nodes.get('#label-dialog').open = false;
+  context.document.querySelector('#label-dialog').open = false;
   assert.equal(nodes.get('#all-labels-panel').hidden,false);
   let prints = 0;
   context.window.print = () => {
@@ -898,7 +902,7 @@ test('A4 action reveals its adjacent workflow and generates selectable labels', 
   assert.ok(a4.indexOf('id="all-labels-open"')<a4.indexOf('id="all-labels-panel"'));
   assert.ok(a4.includes('id="all-labels-pages"'));
   assert.ok(a4.includes('data-i18n-text="0:labels.a4_generate"'));
-  assert.ok(!view.slice(0,view.indexOf('<section id="label-gallery-panel"')).includes('<button'));
+  assert.ok(!view.slice(0,view.indexOf('<section id="label-gallery-panel"')).includes('id="all-labels-open"'));
   context.inventoryState.spools=context.bulkRecords;
   nodes.get('#all-labels-panel').hidden=true;
   let scrolled=0;
@@ -926,4 +930,32 @@ test('A4 toggle collapses and reopens without losing checkbox selection', () => 
   assert.equal(nodes.get('#all-labels-panel').hidden,false);
   assert.equal(nodes.get('#all-labels-open').textContent,'Skjul A4-labels');
   assert.equal(nodes.get('#selected-labels-pages').innerHTML,selected);
+});
+
+
+test('Administration stays below primary navigation and owns the printer settings', () => {
+  const html=fs.readFileSync('static/index.html','utf8');
+  const mainNav=html.match(/<nav class="main-nav"[^>]*>([\s\S]*?)<\/nav>/)[1];
+  assert.ok(!mainNav.includes('id="nav-admin"'));
+  assert.match(html,/<\/nav><nav class="admin-nav"[^>]*><a class="nav" id="nav-admin" href="#admin"/);
+  assert.ok(html.indexOf('id="nav-admin"')<html.indexOf('<div class="aside-bottom">'));
+  const qr=html.slice(html.indexOf('<section id="qr-labels-view"'),html.indexOf('<section id="admin-view"'));
+  const admin=html.slice(html.indexOf('<section id="admin-view"'),html.indexOf('<footer>'));
+  assert.ok(!qr.includes('id="m220-panel"'));
+  for(const id of ['m220-panel','m220-enabled','m220-availability','m220-connect','m220-density','m220-feed','m220-chunk'])assert.ok(admin.includes('id="'+id+'"'));
+  assert.match(qr,/href="#admin" data-i18n-text="0:admin.printer_settings"/);
+});
+
+test('Administration owns language, build plate management and category editing without moving daily selectors',()=>{
+  const html=fs.readFileSync('static/index.html','utf8');
+  const admin=html.slice(html.indexOf('<section id="admin-view"'),html.indexOf('<footer>'));
+  const footer=html.slice(html.indexOf('<footer>'),html.indexOf('</footer>'));
+  assert.ok(!html.includes('id="nav-build-plates"'));
+  for(const id of ['language-select','language-error','build-plate-form','build-plate-list','knowledge-category-admin-list','knowledge-category-form'])assert.ok(admin.includes('id="'+id+'"'),id);
+  assert.ok(!footer.includes('id="language-select"'));
+  const lessons=html.slice(html.indexOf('<section id="knowledge-view"'),html.indexOf('<section id="locations-view"'));
+  assert.ok(lessons.includes('id="knowledge-category-list"'));
+  assert.ok(!lessons.includes('id="knowledge-category-form"'));
+  assert.ok(html.includes('id="project-build-plate"'));
+  assert.ok(html.includes('id="knowledge-edit-category"'));
 });

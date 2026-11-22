@@ -1509,6 +1509,96 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(json.load(self.request("/api/filaments")), stock)
         self.request(endpoint, "DELETE")
 
+    def test_material_type_administration_and_localized_validation(self):
+        name = "Custom material admin API"
+        renamed = "Renamed material admin API"
+        self.request("/api/material-types", "POST", {"name": name})
+        self.assertIn(name, json.load(self.request("/api/material-types")))
+        details = json.load(self.request("/api/material-types?details=1"))
+        item = next(item for item in details if item["name"] == name)
+        self.assertEqual(
+            item, {"name": name, "spool_count": 0, "project_count": 0, "in_use": False}
+        )
+        with self.assertRaises(urllib.error.HTTPError) as error:
+            self.request(
+                "/api/material-types",
+                "POST",
+                {"name": name.lower()},
+                {"Accept-Language": "en"},
+            )
+        self.assertEqual(
+            json.load(error.exception)["error_key"], "api.material_duplicate"
+        )
+        self.request("/api/material-types", "PUT", {"name": name, "new_name": renamed})
+        names = json.load(self.request("/api/material-types"))
+        self.assertNotIn(name, names)
+        self.assertIn(renamed, names)
+        self.request("/api/material-types", "DELETE", {"name": renamed})
+        self.assertNotIn(renamed, json.load(self.request("/api/material-types")))
+
+    def test_database_status_runs_known_select_and_reports_query_time(self):
+        with self.request("/api/system-status") as response:
+            data = json.load(response)
+        self.assertTrue(data["database_online"])
+        self.assertEqual(data["database"], "sqlite")
+        self.assertNotIn("stats", data)
+        self.assertGreaterEqual(data["response_ms"], 0)
+
+        class ReadProbe:
+            closed = False
+
+            def execute(self, query):
+                self.query = query
+                return self
+
+            def fetchone(self):
+                return None
+
+            def close(self):
+                self.closed = True
+
+        probe = ReadProbe()
+        with (
+            patch("src.http_reads.connect", return_value=probe) as connect_probe,
+            patch("src.http_reads.perf_counter", side_effect=[10, 10.0005]),
+        ):
+            empty = json.load(self.request("/api/system-status"))
+        self.assertTrue(empty["database_online"], "An empty inventory is readable")
+        self.assertEqual(empty["response_ms"], 0.5)
+        self.assertEqual(probe.query, "SELECT id FROM filaments LIMIT 1")
+        self.assertTrue(probe.closed)
+        connect_probe.assert_called_once_with(readonly=True)
+
+    def test_sqlite_status_does_not_create_a_missing_database(self):
+        with tempfile.TemporaryDirectory() as directory:
+            missing = Path(directory) / "missing" / "inventory.sqlite3"
+            with (
+                patch.object(database, "DB", missing),
+                patch.dict(os.environ, DATABASE_BACKEND="sqlite"),
+            ):
+                with self.assertRaises(urllib.error.HTTPError) as error:
+                    self.request("/api/system-status")
+                self.assertEqual(error.exception.code, 503)
+                error.exception.close()
+            self.assertFalse(missing.parent.exists())
+
+    def test_database_status_is_offline_without_exposing_connection_details(self):
+        with patch(
+            "src.http_reads.connect", side_effect=OSError("secret connection details")
+        ):
+            with self.assertRaises(urllib.error.HTTPError) as error:
+                self.request("/api/system-status")
+            self.assertEqual(error.exception.code, 503)
+            data = error.exception.read().decode()
+        self.assertNotIn("secret", data)
+        self.assertEqual(
+            json.loads(data),
+            {"database": "sqlite", "database_online": False, "response_ms": None},
+        )
+        self.assertEqual(
+            json.load(self.request("/api/version"))["version"], config.VERSION
+        )
+
     def test_version_matches_running_application(self):
         for backend in ("sqlite", "mysql"):
             with (
@@ -1642,9 +1732,12 @@ class ApiTest(unittest.TestCase):
                             posixpath.join(posixpath.dirname(script), specifier)
                         )
                     )
+        self.assertIn("/administration.js", visited)
         self.assertIn("/usage-model.js", visited)
         self.assertIn("/labels.js", visited)
         self.assertIn("/thermal-labels.js", visited)
+        self.assertIn("/m220-bluetooth.js", visited)
+        self.assertIn("/m220-printing.js", visited)
         self.assertIn("/vendor/bambu-lab-logo.js", visited)
         self.assertIn("/actions.js", visited)
         self.assertIn("/vendor/qrcodegen.js", visited)

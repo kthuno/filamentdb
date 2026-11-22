@@ -209,7 +209,7 @@ test('category rename uses the shared form and sends PUT, cancel returns to crea
   const {context,elements,calls}=await setup();
   context.location.hash='#knowledge';
   await vm.runInContext('showKnowledgeRoute()',context);
-  await elements.get('#knowledge-category-list').onclick({target:{closest:selector=>selector==='[data-knowledge-category-edit]'?{dataset:{knowledgeCategoryEdit:'1'}}:null}});
+  await elements.get('#knowledge-category-admin-list').onclick({target:{closest:selector=>selector==='[data-knowledge-category-edit]'?{dataset:{knowledgeCategoryEdit:'1'}}:null}});
   assert.equal(elements.get('#knowledge-category-name').value,'Materialer');
   assert.equal(elements.get('#knowledge-category-add').textContent,'Gem navn');
   context.$('#knowledge-category-name').value='Nyt navn';
@@ -228,7 +228,7 @@ test('deleting an empty category clears only its selected filter', async()=>{
   await vm.runInContext('showKnowledgeRoute()',context);
   context.$('#knowledge-category_id').value='1';
   context.$('#knowledge-tag').value='PETG';
-  await elements.get('#knowledge-category-list').onclick({target:{closest:selector=>selector==='[data-knowledge-category-delete]'?{dataset:{knowledgeCategoryDelete:'1'}}:null}});
+  await elements.get('#knowledge-category-admin-list').onclick({target:{closest:selector=>selector==='[data-knowledge-category-delete]'?{dataset:{knowledgeCategoryDelete:'1'}}:null}});
   assert.ok(calls.some(([url,options])=>url==='/api/knowledge-categories/1'&&options?.method==='DELETE'));
   assert.equal(context.$('#knowledge-category_id').value,'');
   assert.equal(context.$('#knowledge-tag').value,'PETG');
@@ -387,4 +387,44 @@ test('finishing a deletion does not replace another article opened meanwhile', a
   await deleting;
   assert.equal(context.location.hash,'#knowledge/2');
   assert.ok(elements.get('#knowledge-detail-content').innerHTML.includes('En anden artikel'));
+});
+
+test('Administration category edits refresh shared metadata without loading articles or prints',async()=>{
+  const {context,elements,calls}=await setup();
+  context.location.hash='#admin/categories';
+  let categories=[{id:1,name:'Materialer',article_count:1},{id:2,name:'Tom',article_count:0}];
+  context.request=async(url,options)=>{
+    calls.push([url,options]);
+    if(!options)return categories;
+    if(options.method==='PUT')categories=categories.map(c=>c.id===1?{...c,name:JSON.parse(options.body).name}:c);
+    if(options.method==='DELETE')categories=categories.filter(c=>c.id!==2);
+    return {ok:true};
+  };
+  await vm.runInContext('loadKnowledgeCategories()',context);
+  assert.ok(!elements.get('#knowledge-category-list').innerHTML.includes('data-knowledge-category-edit'));
+  assert.ok(elements.get('#knowledge-category-admin-list').innerHTML.includes('data-knowledge-category-edit'));
+  context.$('#knowledge-category_id').value='1';
+  context.$('#knowledge-tag').value='PETG';
+  await elements.get('#knowledge-category-admin-list').onclick({target:{closest:selector=>selector==='[data-knowledge-category-edit]'?{dataset:{knowledgeCategoryEdit:'1'}}:null}});
+  context.$('#knowledge-category-name').value='Nyt navn';
+  await elements.get('#knowledge-category-form').onsubmit({preventDefault(){}});
+  assert.match(elements.get('#knowledge-category-admin-list').innerHTML,/Nyt navn/);
+  assert.match(elements.get('#knowledge-category_id').innerHTML,/Nyt navn/);
+  assert.equal(context.$('#knowledge-category_id').value,'1');
+  await elements.get('#knowledge-category-admin-list').onclick({target:{closest:selector=>selector==='[data-knowledge-category-delete]'?{dataset:{knowledgeCategoryDelete:'2'}}:null}});
+  assert.ok(!elements.get('#knowledge-category-admin-list').innerHTML.includes('>Tom<'));
+  assert.equal(context.$('#knowledge-category_id').value,'1');
+  assert.equal(context.$('#knowledge-tag').value,'PETG');
+  assert.ok(calls.every(([url])=>url.startsWith('/api/knowledge-categories')));
+});
+
+test('category mutation errors are shown in Administration and leave the form editable',async()=>{
+  const {context,elements}=await setup();
+  context.location.hash='#admin/categories';
+  context.request=async()=>{throw new Error('Name already exists');};
+  context.$('#knowledge-category-name').value='Duplicate';
+  await elements.get('#knowledge-category-form').onsubmit({preventDefault(){}});
+  assert.equal(elements.get('#knowledge-category-error').textContent,'Name already exists');
+  assert.equal(elements.get('#knowledge-category-add').disabled,false);
+  assert.equal(context.$('#knowledge-category-name').value,'Duplicate');
 });

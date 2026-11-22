@@ -11,7 +11,7 @@
 
 The lessons-learned area collects print experience as articles. Cards/details highlight draft status in orange, published in green, and archived in muted text. Create an article manually, choose a category/evidence class, and save it as **Draft**, **Published**, or **Archived**. Observation, possible cause, resolution, and lessons have separate fields. **Verified finding** requires explicit confirmation of testing or repeated experience.
 
-**Manage categories** is collapsed initially. Open it to see all categories and total article counts, including drafts/archived articles. Click a category to filter while preserving other filters. Create categories in the same panel. **Rename** loads a name into the form; choose **Save name** or **Cancel**. Renaming preserves article links. **Delete** requires confirmation and works only for categories without any articles, including drafts/archived articles. First move their articles by editing them. Deleted default categories are not recreated on restart. Enter tags separated by commas.
+**Categories** is collapsed initially. Open it to see all categories and total article counts, including drafts/archived articles. Click a category to filter while preserving other filters. Use **Administration → Lessons learned categories** (or the **Manage categories** link in the overview) to create, rename, and delete categories. **Rename** loads a name into the form; choose **Save name** or **Cancel**. Renaming preserves article links. **Delete** requires confirmation and works only for categories without any articles, including drafts/archived articles. First move their articles by editing them. Deleted default categories are not recreated on restart. Enter tags separated by commas.
 
 ## Print sources and editing
 

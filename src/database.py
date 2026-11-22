@@ -13,7 +13,7 @@ from .material_profiles import seed as seed_material_profiles
 from .materials import seed_materials
 
 
-def connect():
+def connect(*, readonly=False):
     """Select the configured backend without loading the optional driver for SQLite."""
     backend = os.environ.get("DATABASE_BACKEND", "sqlite")
     if backend == "mysql":
@@ -22,8 +22,11 @@ def connect():
         return Connection()
     if backend != "sqlite":
         raise ValueError("DATABASE_BACKEND skal være sqlite eller mysql")
-    DB.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(DB, timeout=15)
+    if readonly:
+        conn = sqlite3.connect(DB.resolve().as_uri() + "?mode=ro", uri=True, timeout=15)
+    else:
+        DB.parent.mkdir(parents=True, exist_ok=True)
+        conn = sqlite3.connect(DB, timeout=15)
     conn.row_factory = sqlite3.Row
     return conn
 
