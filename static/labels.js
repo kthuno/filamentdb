@@ -133,7 +133,9 @@ function refreshThermalLabel() {
 async function downloadThermalLabel() {
   if(!currentThermalLabel || !currentLabelSpool)return;
   const label=currentThermalLabel;
-  const filename=`filament-${currentLabelSpool.id}-${thermalOptions().layout}-${thermalOptions().size}`;
+  const description=[currentLabelSpool.material,currentLabelSpool.color]
+    .filter(Boolean).join('-').replace(/[<>:"/\\|?*\u0000-\u001f]/g,'-').replace(/\s+/g,'-').replace(/-+/g,'-').replace(/^[.-]+|[.-]+$/g,'');
+  const filename=`filament-${description || currentLabelSpool.id}-${thermalOptions().layout}-${thermalOptions().size}`;
   const format=$('#thermal-filetype').value || 'png';
   $('#thermal-download').disabled=true;
   $('#label-error').textContent='';
