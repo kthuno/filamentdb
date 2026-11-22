@@ -1,0 +1,15 @@
+# MySQL production override; compose.yaml alone uses SQLite for development.
+services:
+  app:
+    build:
+      # Linux host DNS works around broken DNS in Docker's default build bridge.
+      network: ${BUILD_NETWORK:-host}
+    environment:
+      DATABASE_BACKEND: mysql
+      MYSQL_HOST: ${MYSQL_HOST:?Angiv MYSQL_HOST i .env}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-filamentdb}
+      MYSQL_USER: ${MYSQL_USER:-filamentdb}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Angiv MYSQL_PASSWORD i .env}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

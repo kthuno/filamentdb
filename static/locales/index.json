@@ -1,0 +1,15 @@
+{
+  "default": "da",
+  "languages": [
+    {
+      "code": "da",
+      "name": "Dansk",
+      "locale": "da-DK"
+    },
+    {
+      "code": "en",
+      "name": "English",
+      "locale": "en-GB"
+    }
+  ]
+}

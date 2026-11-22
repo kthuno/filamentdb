@@ -1,0 +1,50 @@
+# Local credentials and host configuration
+.env
+.env.*
+secrets/
+certs/
+local/
+nginx.local.conf
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Inventory, backups, and database exports
+data/
+backups/
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.sql
+*.sql.gz
+*.sql.bz2
+*.sql.xz
+*.dump
+
+# Local Python environments and generated files
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Agent state and local runtime files
+.codex/
+graphify-out/
+.DS_Store
+.deploy.lock
+.VERSION.tmp
+
+# Sanitized environment templates are part of the project.
+!.env.example
+!.env.mysql.example
