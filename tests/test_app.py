@@ -1317,7 +1317,7 @@ class ApiTest(unittest.TestCase):
     def test_upcoming_project_import_save_and_conversion_do_not_double_charge_stock(
         self,
     ):
-        from test_three_mf import package
+        from tests.test_three_mf import package
 
         stock_before = json.load(self.request("/api/filaments"))
         upload = urllib.request.Request(
