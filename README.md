@@ -2,6 +2,8 @@
 
 A web application for managing filament inventory, prints, and lessons learned, with a Dracula theme and JSON-based interface translations. Data is stored on the server and shared across your devices.
 
+![Filament DB dashboard showing inventory totals, active spools, and consumption statistics](docs/images/dashboard.png)
+
 ## Quick start
 
 Requires Python 3.11 or later. Run from the project root:
@@ -18,7 +20,8 @@ See [Getting started](docs/getting-started.md) for configuration and browser app
 
 | Topic | Contents |
 |---|---|
-| [Inventory and locations](docs/inventory-and-locations.md) | Spools, material types, AMS, QR labels, [M220 thermal labels](docs/inventory-and-locations.md#phomemo-m220-labels), and archiving |
+| [Inventory and locations](docs/inventory-and-locations.md) | Spools, [material type administration](docs/inventory-and-locations.md#material-type-administration), AMS, QR labels, [M220 thermal labels](docs/inventory-and-locations.md#phomemo-m220-labels), and archiving |
+| [Direct M220 Bluetooth printing](docs/m220-bluetooth.md) | Administration printer settings, optional direct label printing, browser requirements, protocol analysis, and removal |
 | [Manufacturer material profiles](docs/material-profiles.md) | Bambu guide lookup, source provenance, and label defaults |
 | [Prints and consumption](docs/prints-and-consumption.md) | Print records, individual consumption, waste, history, and statistics |
 | [Projects and shopping](docs/projects-and-shopping.md) | 3MF projects, build plates, filament requirements, and shopping lists |
@@ -35,6 +38,8 @@ See [Getting started](docs/getting-started.md) for configuration and browser app
 | [MySQL in production](docs/mysql.md) | Connections, environment files, and required database privileges |
 | [Backup and restore](docs/backup.md) | Combined backups of the database and original 3MF files |
 
+Administration stays at the bottom of the navigation and groups browser-local language/printer settings with shared material type, build plate, and lessons category management. It also shows the running app version, configured SQLite/MySQL backend, a database-readability indicator with the duration of a fixed SELECT query.
+
 The app has no login. The default setup publishes port **49173** on localhost only; an existing nginx handles HTTPS and any access control. CSV exports inventory; a complete backup must include both the database and file archive.
 
 ## Development
@@ -44,7 +49,7 @@ The app has no login. The default setup publishes port **49173** on localhost on
 | [Architecture](docs/architecture.md) | Python modules, ES modules, state, and transactions |
 | [Development and testing](docs/development.md) | Syntax checks, frontend tests, Python tests, and Ruff |
 | [GitHub repository settings](docs/repository-settings.md) | Access, pull requests, CI, security, and public releases |
-| [Language files](docs/localization.md) | Adding languages, translation keys, and fallback behavior |
+| [Language files](docs/localization.md) | Administration language selection, adding languages, translation keys, and fallback behavior |
 
 [AGENTS.md](AGENTS.md) defines repository rules for agents. All project documentation is maintained in English. Run documentation commands from the project root. User guide action names are described in English; displayed labels depend on the selected interface language.
 

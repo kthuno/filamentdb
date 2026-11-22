@@ -185,3 +185,75 @@ test('failed profile lookup leaves manual label generation usable',async()=>{
   assert.equal(nodes.get('#thermal-download').disabled,false);
   assert.equal(nodes.get('#thermal-nozzle').value,'270°C');
 });
+
+test('label gallery loads shared guide once, preserves edits during lookup, and prints edited values',async()=>{
+  let resolveProfile,requests=0,prints=0;
+  const {nodes,labels,context}=await profileDialog(async()=>{
+    requests++;
+    return {ok:true,json:()=>new Promise(resolve=>{resolveProfile=resolve;})};
+  });
+  context.inventoryState.spools=[
+    {...spool,nozzle_temp:270,bed_temp:90},
+    {...spool,id:13,label_token:'permanent-13'},
+  ];
+  const cards=new Map();
+  for(const id of [12,13]) {
+    const fields=new Map(),buttons=[{},{}];
+    const card={
+      dataset:{galleryId:String(id)},
+      querySelector(selector){if(!fields.has(selector))fields.set(selector,{});return fields.get(selector);},
+      querySelectorAll(){return buttons;},
+    };
+    cards.set(id,card);
+  }
+  nodes.get('#label-gallery').querySelector=selector=>cards.get(Number(selector.match(/"(\d+)"/)[1]));
+  const generation=nodes.get('#label-gallery-open').onclick();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(requests,1);
+  const card=cards.get(12);
+  const target={dataset:{galleryField:'nozzle'},value:'275°C',closest:()=>card};
+  nodes.get('#label-gallery').oninput({target});
+  resolveProfile(profileFixture());
+  await generation;
+  assert.match(card.querySelector('.gallery-preview').innerHTML,/275°C/);
+  assert.match(card.querySelector('.gallery-preview').innerHTML,/100–120°C/);
+  assert.match(card.querySelector('.gallery-preview').innerHTML,/80°C\/8–12h/);
+  assert.equal(card.querySelector('[data-gallery-field="flow"]').value,'');
+  assert.match(cards.get(13).querySelector('.gallery-preview').innerHTML,/260–300°C/);
+  await nodes.get('#label-gallery-open').onclick();
+  assert.equal(nodes.get('#label-gallery').hidden,true);
+  assert.equal(nodes.get('#label-gallery-open').textContent,'Dan alle labelbilleder');
+  await nodes.get('#label-gallery-open').onclick();
+  assert.equal(nodes.get('#label-gallery').hidden,false);
+  assert.equal(nodes.get('#label-gallery-open').textContent,'Skjul labelbilleder');
+  assert.equal(requests,1);
+  assert.match(card.querySelector('.gallery-preview').innerHTML,/275°C/);
+  context.window.print=()=>{prints++;};
+  const button={dataset:{galleryAction:'print'},closest:()=>card};
+  await nodes.get('#label-gallery').onclick({target:{closest:()=>button}});
+  assert.equal(prints,1);
+  assert.equal(nodes.get('#thermal-nozzle').value,'275°C');
+  assert.equal(nodes.get('#thermal-bed').value,'100–120°C');
+  assert.equal(nodes.get('#thermal-layout').value,'extended');
+  assert.equal(context.inventoryState.spools[0].nozzle_temp,270);
+});
+
+test('gallery SVG download uses the edited image and descriptive material/color filename',async()=>{
+  const {context}=await profileDialog(async()=>({ok:true,json:async()=>null}));
+  const links=[],blobs=[],revoked=[];
+  context.Blob=Blob;
+  context.URL=class extends URL {
+    static createObjectURL(blob){blobs.push(blob);return 'blob:gallery';}
+    static revokeObjectURL(url){revoked.push(url);}
+  };
+  context.setTimeout=callback=>callback();
+  context.document.createElement=()=>({click(){this.clicked=true;},remove(){this.removed=true;}});
+  context.document.body={append:anchor=>links.push(anchor)};
+  await context.saveLabelImage({...spool,color:'Black / Grey'}, {svg:'<svg><text>275°C</text></svg>'},
+    {layout:'extended',size:'60x40'},'svg');
+  assert.equal(links[0].download,'filament-PAHT-CF-Black-Grey-extended-60x40.svg');
+  assert.equal(links[0].clicked,true);
+  assert.equal(links[0].removed,true);
+  assert.equal(await blobs[0].text(),'<svg><text>275°C</text></svg>');
+  assert.deepEqual(revoked,['blob:gallery']);
+});

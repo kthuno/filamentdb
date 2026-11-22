@@ -160,6 +160,10 @@ def save_project(conn, payload, identity=None):
         if kind.casefold() not in seen:
             normalized.append(kind)
             seen.add(kind.casefold())
+    from .materials import remember_material
+
+    for kind in normalized:
+        remember_material(conn, kind)
     values = (
         *values,
         build_plate_id,

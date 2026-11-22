@@ -8,8 +8,7 @@ import { populateLocations } from './locations.js';
 let lastHandledLink = null;
 function resetSpoolLink() { lastHandledLink = null; }
 // Inventory cards, filters and spool editing.
-let defaultMaterialOptions = '';
-function populateMaterialTypes(names) { $('#material-list').innerHTML = defaultMaterialOptions + names.map(name => '<option value="' + esc(name) + `"></option>`).join(''); }
+function populateMaterialTypes(names) { $('#material-list').innerHTML = names.map(name => '<option value="' + esc(name) + `"></option>`).join(''); }
 const materialKey = value => value.trim().replace(/\s+/g, ' ').toLocaleLowerCase('da');
 function summarizeMaterials(records) {
   const groups = new Map();
@@ -110,7 +109,6 @@ async function handleSpoolLink() {
 }
 
 function initInventory() {
-  defaultMaterialOptions = $('#material-list').innerHTML;
   $('#add').onclick = $('#empty-add').onclick = () => edit();
   $('#close').onclick = $('#cancel').onclick = () => $('#editor').close();
   $('#cards').onclick = e => { const more = e.target.closest('[data-more]'); if(more) { addMore(Number(more.dataset.more)); return; } const label = e.target.closest('[data-label]'); if(label) { openLabel(Number(label.dataset.label)); return; } const consume = e.target.closest('[data-consume]'); if (consume) { openConsumption(Number(consume.dataset.consume)); return; } if (e.target.closest('button, a, summary')) return; const target = e.target.closest('[data-edit]'); if(target) { edit(Number(target.dataset.edit)); return; } const card = e.target.closest('[data-expand]'); if(card && !e.target.closest('details')) card.querySelector('details').open = true; };

@@ -133,3 +133,7 @@ Ordinary `docker compose` commands, restarts, and default script deployments do 
 - [MySQL in production](mysql.md)
 - [Backup and restore](backup.md)
 - [OpenAI configuration](ai-suggestions.md)
+
+## Direct M220 Bluetooth printing
+
+The optional [M220 Bluetooth extension](m220-bluetooth.md) runs on the client device, not in the app container. It requires a browser supporting Web Bluetooth and a trusted HTTPS app address for network access. Localhost is allowed for development, but its QR links are not reachable from a phone. If the app is currently used via HTTP on the LAN, provide/use its HTTPS address and certificate through the existing host proxy before trying Bluetooth; deploying Filament DB does not provision certificates or change host nginx. Existing HTTPS deployments require no proxy changes. The browser requests explicit printer permission when the user clicks Connect. No new port, Bluetooth device passthrough, service, package, or database grant is required on the server.

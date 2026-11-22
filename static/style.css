@@ -328,3 +328,164 @@ input:disabled{opacity:.5;cursor:not-allowed}.print-fields{display:grid;grid-tem
 #thermal-guide-status,#thermal-drying-note,#thermal-flow-note{font-size:12px;text-align:left;line-height:1.5}
 .thermal-guide-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;margin:12px 0}
 .thermal-guide-actions a{color:var(--purple)}
+
+/* Editable per-spool thermal previews in the QR labels page. */
+#label-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+.label-gallery-card{min-width:0;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.label-gallery-card h3{color:var(--purple);overflow-wrap:anywhere}
+.gallery-preview{background:white;border-radius:6px;overflow:hidden}
+.gallery-preview svg{display:block;width:100%;height:auto;max-height:400px}
+.gallery-status{font-size:12px;color:var(--muted)}
+.gallery-error{color:var(--red)}
+.label-gallery-card .modal-actions{flex-wrap:wrap}
+
+/* Keep each QR workflow's action beside its heading and output. */
+#qr-labels-view>.quick-panel>.section-title{gap:12px;flex-wrap:wrap}
+#qr-labels-view>.quick-panel>.section-title h2{margin:0}
+#qr-labels-view>.quick-panel>.section-title button{max-width:100%;white-space:normal}
+#a4-labels-section #all-labels-panel{margin-top:20px}
+@media(max-width:600px){#qr-labels-view>.quick-panel>.section-title{align-items:flex-start;flex-direction:column}}
+
+#label-gallery[hidden]{display:none}
+
+/* Optional M220 extension; existing print controls keep their own behavior. */
+#m220-panel h2{color:var(--purple);font-size:16px;font-weight:600}
+#m220-panel p,.m220-status{font-size:12px;line-height:1.5}
+.m220-enable{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text);font-size:13px}
+.m220-enable input{margin:0}
+.m220-actions{display:flex;gap:8px;flex-wrap:wrap}
+.m220-status{overflow-wrap:anywhere}
+#label-dialog:not(.thermal-label-active) [data-m220-print],#label-dialog:not(.thermal-label-active) #m220-dialog-status{display:none}
+[data-m220-print][hidden],[data-m220-status][hidden],#m220-dialog-status[hidden]{display:none!important}
+
+/* Administration stays below the scrollable primary navigation. */
+.admin-nav{flex-shrink:0;border-top:1px solid var(--line);padding-top:12px;margin-bottom:12px}
+.admin-nav .nav{margin-right:3px}
+.printer-settings-link{color:var(--purple)}
+#m220-availability{font-weight:600;color:var(--muted)}
+#m220-availability[data-available="true"]{color:var(--green)}
+@media(max-width:700px){.admin-nav{margin:10px 0 0;padding-top:8px}.admin-nav .nav{display:flex;margin:0;padding:8px 12px}}
+
+/* Administration groups local preferences and shared reference data. */
+#admin-view>section{scroll-margin-top:24px;margin-bottom:30px}
+#admin-language .language-settings{margin-top:8px;max-width:320px}
+#admin-language #language-select{width:100%;max-width:none;padding:10px 12px;border:1px solid var(--line);background:#242631;font-size:14px}
+#admin-language #language-error{position:static;width:auto;max-width:none;margin-top:8px}
+#admin-view .admin-section-heading{gap:16px;flex-wrap:wrap;margin-bottom:20px}
+#admin-view .admin-section-heading h2{margin:0}
+#admin-view .admin-section-heading .eyebrow{display:none}
+#knowledge-category-error{color:#ff5555}
+
+.admin-material-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.admin-material-row>div{min-width:0;overflow-wrap:anywhere}
+.admin-material-row p{font-size:12px;margin:4px 0}
+#material-type-form{margin-top:20px}
+#material-type-form label{display:flex;flex-direction:column;gap:6px;max-width:420px}
+#material-type-error,#admin-info-error{color:#ff5555}
+.admin-info{display:flex;gap:40px;flex-wrap:wrap}
+.admin-info dt{font-size:12px;color:var(--muted)}
+.admin-info dd{margin:6px 0 0;font-weight:600}
+@media(max-width:600px){.admin-material-row{align-items:flex-start;flex-direction:column}#admin-info>.section-title{flex-wrap:wrap;gap:12px}}
+
+.admin-material-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Administration groups visible settings by purpose, with compact overview cards. */
+#admin-view{padding-bottom:24px}
+.admin-hero{position:relative;isolation:isolate;padding:30px 32px;border:1px solid #bd93f933;border-radius:18px;background:linear-gradient(120deg,#bd93f916,transparent 70%),var(--panel);overflow:hidden;margin-bottom:20px}
+.admin-hero::after{content:'';position:absolute;z-index:-1;right:-32px;top:-72px;width:250px;height:250px;border:36px solid #bd93f909;border-radius:50%}
+.admin-hero h1{margin:8px 0 12px}
+.admin-hero p{max-width:720px;line-height:1.7;margin-bottom:0}
+.admin-index{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 32px}
+.admin-index a{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;color:var(--muted);text-decoration:none;font-size:12px;background:#242631;transition:color .15s,border-color .15s}
+.admin-index a:hover,.admin-index a:focus-visible{color:var(--purple);border-color:var(--purple)}
+.admin-index svg{width:15px;height:15px;flex-shrink:0;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.admin-panels{display:grid;gap:34px}
+.admin-group{min-width:0;scroll-margin-top:24px}
+.admin-group-heading{margin-bottom:16px;padding-left:14px;border-left:3px solid var(--purple)}
+#admin-shared>.admin-group-heading{border-color:#8be9fd}
+.admin-group-heading h2{margin:0 0 5px;font-size:18px;letter-spacing:-.3px}
+.admin-group-heading p{font-size:12px;line-height:1.6;margin:0}
+.admin-overview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch}
+.admin-group-cards{display:grid;gap:18px}
+.admin-panel{--admin-accent:var(--purple);min-width:0;border:1px solid var(--line);border-radius:14px;background:var(--panel);scroll-margin-top:24px;box-shadow:0 4px 16px #17182014;overflow:hidden;display:flex;flex-direction:column}
+.admin-panel.admin-scope-shared{--admin-accent:#8be9fd}
+.admin-panel.admin-scope-info{--admin-accent:#50fa7b}
+.admin-card-header{display:flex;align-items:center;gap:14px;padding:20px 24px;border-bottom:1px solid var(--line);background:linear-gradient(100deg,#ffffff03,transparent);min-width:0}
+.admin-panel-icon{display:flex;align-items:center;justify-content:center;width:44px;height:44px;flex-shrink:0;border:1px solid #ffffff0d;border-radius:11px;background:#242631;color:var(--admin-accent)}
+.admin-panel-icon svg{width:23px;height:23px;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.admin-panel-copy{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+.admin-panel-title{font-size:16px;font-weight:650;letter-spacing:-.2px;line-height:1.4;margin:0;color:var(--text);overflow-wrap:anywhere}
+.admin-panel-description{font-size:12px;line-height:1.5;color:var(--muted)}
+.admin-panel-scope{font-size:10px;font-weight:600;white-space:nowrap;letter-spacing:.2px;padding:5px 9px;border:1px solid var(--line);border-radius:6px;color:var(--admin-accent);background:#242631}
+.admin-panel-body{padding:24px;min-width:0;flex:1}
+.admin-panel-body>p:first-child{margin-top:0;line-height:1.7}
+.admin-panel-body>p:empty{display:none}
+.admin-panel-body>form{padding:20px;background:#242631;border:1px solid var(--line);border-radius:10px;margin:20px 0}
+.admin-panel-body>form .modal-actions{margin-top:14px}
+.admin-overview-grid .admin-card-header{flex-wrap:wrap;gap:12px;padding:18px 20px}
+.admin-overview-grid .admin-panel-scope{margin-left:auto}
+.admin-overview-grid .admin-panel-description{display:none}
+.admin-overview-grid .admin-panel-body{padding:20px}
+#admin-language .admin-panel-body>label{display:block;font-size:12px;color:var(--muted);margin-top:18px}
+#admin-language .language-settings{max-width:none}
+#admin-view #m220-panel .m220-enable{padding:16px;background:#242631;border:1px solid var(--line);border-radius:10px}
+#admin-view #m220-panel input[type=checkbox]{accent-color:var(--purple);width:18px;height:18px;flex-shrink:0}
+#admin-view #m220-panel .thermal-controls{grid-template-columns:repeat(3,minmax(0,1fr))}
+#admin-view #m220-status{padding:12px 14px;border-left:3px solid var(--purple);background:#bd93f909;border-radius:0 6px 6px 0}
+#admin-view .build-plates-workspace{margin-top:16px}
+#admin-view #build-plate-count{display:inline-block;margin-bottom:12px}
+#admin-categories.admin-panel{margin:0;padding:0;background:var(--panel)}
+#admin-categories .knowledge-category-list{margin:0}
+#admin-view .admin-material-row{padding:14px;border:1px solid var(--line);border-radius:9px;background:#282a36}
+#material-type-list{display:grid;gap:10px}
+#admin-view .admin-material-row strong{font-size:13px}
+#admin-view .admin-material-actions button{font-size:12px;padding:7px 10px}
+#admin-view .admin-material-actions .danger{margin-right:0}
+#admin-materials .admin-panel-body,#admin-categories .admin-panel-body{display:grid;grid-template-columns:minmax(240px,.7fr) minmax(0,1.3fr);gap:18px 24px;align-items:start}
+#admin-materials .admin-panel-body>p,#admin-categories .admin-panel-body>p{grid-column:1/-1;margin:0}
+#admin-materials .admin-panel-body>form,#admin-categories .admin-panel-body>form{grid-column:1;margin:0}
+#material-type-list,#knowledge-category-admin-list{grid-column:2}
+#admin-view .admin-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0 0}
+#admin-view .admin-info>div{padding:14px;border:1px solid var(--line);border-radius:9px;background:#242631}
+#admin-view .admin-info dd{font-size:19px;letter-spacing:-.4px;margin-top:8px;overflow-wrap:anywhere}
+#admin-info .admin-panel-body>.section-title{justify-content:flex-start}
+#admin-info-refresh{font-size:12px;padding:8px 12px}
+@media(max-width:1100px){#admin-materials .admin-panel-body,#admin-categories .admin-panel-body{display:block}#admin-materials .admin-panel-body>form,#admin-categories .admin-panel-body>form{margin:20px 0}.admin-material-row{flex-wrap:wrap}.admin-card-header{padding:18px 20px}.admin-panel-body{padding:20px}}
+@media(max-width:900px){.admin-overview-grid{grid-template-columns:1fr}#admin-view #m220-panel .thermal-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.admin-hero{padding:22px 20px}.admin-index{gap:6px;margin-bottom:24px}.admin-index a{padding:8px 10px;font-size:11px}.admin-panels{gap:28px}.admin-card-header{flex-wrap:wrap;padding:16px;gap:12px}.admin-panel-icon{width:38px;height:38px}.admin-panel-title{font-size:14px}.admin-panel-description{font-size:11px}.admin-panel-scope{margin-left:50px}.admin-overview-grid .admin-panel-scope{margin-left:50px}.admin-panel-body,.admin-overview-grid .admin-panel-body{padding:16px}.admin-panel-body>form{padding:16px}#admin-view #m220-panel .thermal-controls{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.admin-index a{transition:none}}
+
+/* A shared page header connects every primary navigation destination. */
+.heading.page-heading{position:relative;isolation:isolate;padding:28px 30px;border:1px solid #bd93f933;border-radius:16px;background:linear-gradient(120deg,#bd93f916,transparent 70%),var(--panel);overflow:hidden;gap:20px;flex-wrap:wrap}
+.heading.page-heading::after{content:'';position:absolute;z-index:-1;right:-32px;top:-72px;width:250px;height:250px;border:36px solid #bd93f909;border-radius:50%;pointer-events:none}
+.heading.page-heading>div:first-child{min-width:0}
+.heading.page-heading h1{font-size:clamp(30px,3vw,44px);margin:8px 0 12px}
+.heading.page-heading p{max-width:720px;line-height:1.7;margin-bottom:0}
+.heading.page-heading>button,.heading.page-heading>.usage-actions,.heading.page-heading>.dashboard-actions,.heading.page-heading>.project-upload{flex-shrink:0;max-width:100%}
+@media(max-width:700px){.heading.page-heading{padding:22px 20px;margin-top:24px;gap:18px}.heading.page-heading h1{font-size:32px}.heading.page-heading .usage-actions,.heading.page-heading .dashboard-actions{width:100%;flex-wrap:wrap}.heading.page-heading .usage-actions button,.heading.page-heading .dashboard-actions button{flex:1}}
+
+/* Build plates share the category editor/list arrangement. */
+#admin-view .build-plates-workspace{grid-template-columns:minmax(240px,.7fr) minmax(0,1.3fr);gap:24px;align-items:start;margin:0}
+#admin-view .build-plate-editor.quick-panel{display:block;padding:20px;background:#242631;border-radius:10px}
+#admin-view .build-plate-editor-icon,#admin-view .build-plate-collection-icon,#admin-view .build-plate-collection-heading .eyebrow{display:none}
+#admin-view .build-plate-editor h2{font-size:14px;margin:0 0 8px}
+#admin-view .build-plate-editor>p{margin:0 0 16px;font-size:12px;line-height:1.7}
+#admin-view .build-plate-editor #build-plate-form{display:block}
+#admin-view .build-plate-editor .modal-actions{margin-top:14px}
+#admin-view .build-plate-collection-heading{margin:0 0 14px}
+#admin-view .build-plate-collection-heading h2{font-size:14px;margin:0}
+@media(max-width:1100px){#admin-view .build-plates-workspace{grid-template-columns:minmax(0,1fr);gap:20px}}
+@media(max-width:600px){#admin-view .build-plate-editor.quick-panel{padding:16px}}
+
+/* Database reachability is measured independently from version information. */
+.admin-db-health{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+.admin-db-state{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:600;min-width:0}
+.admin-db-led{display:inline-block;width:9px;height:9px;flex-shrink:0;border-radius:50%;background:var(--muted);box-shadow:0 0 0 4px #a4a8bd0d}
+.admin-db-state[data-state="online"] .admin-db-led{background:var(--green);box-shadow:0 0 0 4px #50fa7b12,0 0 9px #50fa7b40}
+.admin-db-state[data-state="offline"] .admin-db-led{background:#ff5555;box-shadow:0 0 0 4px #ff555512,0 0 9px #ff555540}
+#admin-db-latency,.admin-db-checked{font-size:10px;color:var(--muted)}
+.admin-db-checked{margin:9px 0 16px}
+
+#admin-view .admin-info dd.admin-database-details{font-size:12px;font-weight:400;letter-spacing:normal;margin-top:12px}
+.admin-database-details .admin-db-health{margin-top:0;padding-top:12px}
+.admin-database-details .admin-db-checked{margin:8px 0 0;line-height:1.5}
