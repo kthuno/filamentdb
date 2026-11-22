@@ -8,6 +8,8 @@ from .archive_links import backfill_print_archive_links
 from .config import DB
 from .knowledge import initialize as initialize_knowledge
 from .locations import sync_ams_slots
+from .material_profiles import initialize as initialize_material_profiles
+from .material_profiles import seed as seed_material_profiles
 from .materials import seed_materials
 
 
@@ -34,9 +36,11 @@ def initialize():
         with connect() as conn:
             mysql_backend.initialize(conn)
             initialize_knowledge(conn, mysql=True)
+            initialize_material_profiles(conn, mysql=True)
             conn.commit()
             mysql_backend.seed(conn)
             seed_materials(conn)
+            seed_material_profiles(conn)
             sync_ams_slots(conn, migrating=True)
         return
     with connect() as conn:
@@ -249,4 +253,6 @@ def initialize():
         if "material" in columns:
             seed_materials(conn)
         initialize_knowledge(conn)
+        initialize_material_profiles(conn)
+        seed_material_profiles(conn)
         sync_ams_slots(conn, migrating=True)

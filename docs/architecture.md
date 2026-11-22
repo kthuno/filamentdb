@@ -33,10 +33,13 @@ The frontend uses JavaScript ES modules with explicit imports/exports, without T
 | `dashboard.js` | Inventory overview, active spools, and statistics |
 | `consumption.js` | Individual consumption, history, and history filters |
 | `labels.js` | QR labels, selection, and printing |
+| `thermal-labels.js` | Monochrome M220 SVG layouts, integer-dot QR placement, and PNG export |
 | `prints.js` | Shared draft and dialog for prints/waste; `PrintEditor` is the entry point for other features |
 | `locations.js` | Locations, available capacity, and spool location fields |
 | `projects.js`, `files.js`, `knowledge.js` | Projects/planning, file archive, and lessons learned |
 | `app.js`, `bootstrap.js` | Navigation, shared updates, and startup |
+
+Manufacturer reference data is separate from spool records: `src/material_profiles.py` creates and seeds `material_profiles` for SQLite and MySQL using the reviewed snapshot in `src/reference/bambu_filament_guide.json`. The read-only `/api/material-profiles` endpoint performs exact normalized manufacturer/material lookup. Label dialogs load reference values on demand and ignore responses from previously opened spools. See [material profiles](material-profiles.md) for provenance, migration behavior, and the offline import workflow.
 
 Each module has its own scope. Inventory and consumption snapshots are private in `inventory-data.js`, exposed through read-only getters with frozen API data; only data fetching replaces snapshots. Print drafts and QR selections are not exported. Projects, the file archive, and lessons learned use `PrintEditor` to open prints. `actions.js` receives coordinator callbacks at startup, letting features request updates without importing `app.js` back. The import graph has no circular dependencies. New JavaScript files must be added to the HTTP layer's explicit static-file allowlist. `static/package.json` enables ES modules for Node tests and requires no npm installation.
 

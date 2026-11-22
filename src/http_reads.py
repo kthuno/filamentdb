@@ -79,6 +79,17 @@ class ReadRoutes:
                     )
                 ]
             return self.respond(200, names)
+        if path == "/api/material-profiles":
+            from .material_profiles import lookup
+
+            query = parse_qs(urlparse(self.path).query)
+            with connect() as conn:
+                profile = lookup(
+                    conn,
+                    query.get("manufacturer", [""])[0],
+                    query.get("material", [""])[0],
+                )
+            return self.respond(200, profile)
         if path == "/api/locations":
             with connect() as conn:
                 rows = [
@@ -388,6 +399,14 @@ class ReadRoutes:
             "/dashboard.js": ("dashboard.js", "text/javascript; charset=utf-8"),
             "/consumption.js": ("consumption.js", "text/javascript; charset=utf-8"),
             "/labels.js": ("labels.js", "text/javascript; charset=utf-8"),
+            "/thermal-labels.js": (
+                "thermal-labels.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/vendor/bambu-lab-logo.js": (
+                "vendor/bambu-lab-logo.js",
+                "text/javascript; charset=utf-8",
+            ),
             "/prints.js": ("prints.js", "text/javascript; charset=utf-8"),
             "/locations.js": ("locations.js", "text/javascript; charset=utf-8"),
             "/bootstrap.js": ("bootstrap.js", "text/javascript; charset=utf-8"),

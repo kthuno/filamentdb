@@ -18,7 +18,8 @@ See [Getting started](docs/getting-started.md) for configuration and browser app
 
 | Topic | Contents |
 |---|---|
-| [Inventory and locations](docs/inventory-and-locations.md) | Spools, material types, AMS, QR labels, and archiving |
+| [Inventory and locations](docs/inventory-and-locations.md) | Spools, material types, AMS, QR labels, [M220 thermal labels](docs/inventory-and-locations.md#phomemo-m220-labels), and archiving |
+| [Manufacturer material profiles](docs/material-profiles.md) | Bambu guide lookup, source provenance, and label defaults |
 | [Prints and consumption](docs/prints-and-consumption.md) | Print records, individual consumption, waste, history, and statistics |
 | [Projects and shopping](docs/projects-and-shopping.md) | 3MF projects, build plates, filament requirements, and shopping lists |
 | [File archive](docs/file-archive.md) | Uploads, estimates, images, and print history per file |

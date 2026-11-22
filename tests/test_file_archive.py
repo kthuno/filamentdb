@@ -16,10 +16,9 @@ from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import quote
 
-from test_three_mf import package
-
 from src import database, file_archive
 from src.http_server import Handler
+from tests.test_three_mf import package
 
 
 class FileArchiveTest(unittest.TestCase):

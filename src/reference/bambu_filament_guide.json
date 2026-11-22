@@ -1,0 +1,2611 @@
+{
+  "source_url": "https://cms.bblmw.com/Bambu_Filament_Guide_77b0b697ca.pdf",
+  "source_sha256": "3556a92bc3785046d1b0be8b0a3682a7b7c9e2ea99bf485db74f5c41397b8714",
+  "source_page": 1,
+  "retrieved_on": "2026-11-22",
+  "manufacturer": "Bambu Lab",
+  "profiles": [
+    {
+      "material": "PLA Basic",
+      "nozzle_temperature_c": [
+        190,
+        230
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            50,
+            50
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            60,
+            70
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Lite",
+      "nozzle_temperature_c": [
+        190,
+        240
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            50,
+            50
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            60,
+            70
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Matte",
+      "nozzle_temperature_c": [
+        190,
+        230
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            50,
+            50
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            60,
+            70
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Silk",
+      "nozzle_temperature_c": [
+        210,
+        240
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            55,
+            55
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            65,
+            75
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Silk+",
+      "nozzle_temperature_c": [
+        210,
+        240
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            55,
+            55
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            65,
+            75
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Metal",
+      "nozzle_temperature_c": [
+        190,
+        230
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            55,
+            55
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            65,
+            75
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Sparkle",
+      "nozzle_temperature_c": [
+        190,
+        230
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            55,
+            55
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            65,
+            75
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Galaxy",
+      "nozzle_temperature_c": [
+        190,
+        230
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            55,
+            55
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            65,
+            75
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Wood",
+      "nozzle_temperature_c": [
+        190,
+        240
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            55,
+            55
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            65,
+            75
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Marble",
+      "nozzle_temperature_c": [
+        190,
+        230
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            55,
+            55
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            65,
+            75
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Translucent",
+      "nozzle_temperature_c": [
+        200,
+        240
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            50,
+            50
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            60,
+            70
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Tough+",
+      "nozzle_temperature_c": [
+        220,
+        250
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            50,
+            50
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            60,
+            70
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Glow",
+      "nozzle_temperature_c": [
+        190,
+        230
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            55,
+            55
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            65,
+            75
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Aero",
+      "nozzle_temperature_c": [
+        210,
+        260
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            55,
+            55
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            65,
+            75
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA Pure",
+      "nozzle_temperature_c": [
+        190,
+        230
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            50,
+            50
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            60,
+            70
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PLA-CF",
+      "nozzle_temperature_c": [
+        210,
+        240
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            45,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            50,
+            55
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            55,
+            55
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            65,
+            75
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "Support for PLA",
+      "nozzle_temperature_c": [
+        220,
+        230
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            40,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            30,
+            45
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            55,
+            55
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            65,
+            75
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PETG Basic",
+      "nozzle_temperature_c": [
+        230,
+        260
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            65,
+            75
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            65,
+            75
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            65,
+            75
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            65,
+            65
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PETG Matte",
+      "nozzle_temperature_c": [
+        230,
+        260
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            40,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            55,
+            65
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            40,
+            45
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            65,
+            65
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PETG Translucent",
+      "nozzle_temperature_c": [
+        230,
+        270
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            65,
+            75
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            65,
+            75
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            60,
+            75
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            65,
+            65
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            75,
+            85
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PETG-CF",
+      "nozzle_temperature_c": [
+        240,
+        270
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            60,
+            80
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            60,
+            80
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            60,
+            70
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            65,
+            65
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            75,
+            85
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "Support for PLA/PETG",
+      "nozzle_temperature_c": [
+        190,
+        220
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            55
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            60,
+            70
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            60,
+            70
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            75,
+            75
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            65,
+            75
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PVA",
+      "nozzle_temperature_c": [
+        220,
+        250
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Cool Plate",
+          "temperature_c": [
+            35,
+            45
+          ]
+        },
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            35,
+            45
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            35,
+            45
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            35,
+            45
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            8,
+            12
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            100
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "ABS",
+      "nozzle_temperature_c": [
+        240,
+        280
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            90,
+            100
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            90,
+            100
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            100
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "ABS-GF",
+      "nozzle_temperature_c": [
+        240,
+        280
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            90,
+            100
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            90,
+            100
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            100
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "Support for ABS",
+      "nozzle_temperature_c": [
+        240,
+        270
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            80,
+            100
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            80,
+            100
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            4,
+            4
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            85,
+            95
+          ],
+          "hours": [
+            6,
+            6
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "ASA",
+      "nozzle_temperature_c": [
+        240,
+        280
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            90,
+            100
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            90,
+            100
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            100
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "ASA Aero",
+      "nozzle_temperature_c": [
+        240,
+        280
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            80,
+            90
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            80,
+            90
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            100
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "ASA-CF",
+      "nozzle_temperature_c": [
+        250,
+        290
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            90,
+            100
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            90,
+            100
+          ]
+        }
+      ],
+      "drying_required": false,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            100
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PC",
+      "nozzle_temperature_c": [
+        260,
+        280
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            90,
+            110
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            90,
+            110
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            100
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PC FR",
+      "nozzle_temperature_c": [
+        260,
+        280
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            90,
+            110
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            90,
+            110
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            100
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "TPU 75A",
+      "nozzle_temperature_c": [
+        200,
+        250
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            30,
+            35
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            30,
+            35
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            70,
+            70
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            90
+          ],
+          "hours": [
+            16,
+            16
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "TPU 85A",
+      "nozzle_temperature_c": [
+        200,
+        250
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            30,
+            35
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            30,
+            35
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            70,
+            70
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            90
+          ],
+          "hours": [
+            16,
+            16
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "TPU 90A",
+      "nozzle_temperature_c": [
+        200,
+        250
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            30,
+            35
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            30,
+            35
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            70,
+            70
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            90
+          ],
+          "hours": [
+            16,
+            16
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "TPU 95A HF",
+      "nozzle_temperature_c": [
+        220,
+        240
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            30,
+            35
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            30,
+            35
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            70,
+            70
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            80,
+            90
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "TPU for AMS",
+      "nozzle_temperature_c": [
+        220,
+        240
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            30,
+            35
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            30,
+            35
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            70,
+            70
+          ],
+          "hours": [
+            8,
+            8
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            80,
+            90
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PET-CF",
+      "nozzle_temperature_c": [
+        260,
+        300
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            70,
+            100
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            70,
+            100
+          ]
+        },
+        {
+          "plate": "Cool Plate SuperTack",
+          "temperature_c": [
+            60,
+            80
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            8,
+            12
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            100
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PAHT-CF",
+      "nozzle_temperature_c": [
+        260,
+        300
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            100,
+            120
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            100,
+            120
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            8,
+            12
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            100
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PA6-CF",
+      "nozzle_temperature_c": [
+        260,
+        300
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            100,
+            120
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            100,
+            120
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            8,
+            12
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            100
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PA6-GF",
+      "nozzle_temperature_c": [
+        260,
+        290
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            100,
+            120
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            100,
+            120
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            80,
+            80
+          ],
+          "hours": [
+            8,
+            12
+          ],
+          "notes": []
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            90,
+            100
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PPS-CF",
+      "nozzle_temperature_c": [
+        310,
+        340
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            100,
+            120
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            100,
+            120
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            100,
+            140
+          ],
+          "hours": [
+            8,
+            12
+          ],
+          "notes": [
+            "Higher temperatures within this range improve drying."
+          ]
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            110,
+            120
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying.",
+            "Less effective than a blast drying oven."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    },
+    {
+      "material": "PPA-CF",
+      "nozzle_temperature_c": [
+        280,
+        310
+      ],
+      "bed_temperatures": [
+        {
+          "plate": "Smooth PEI Plate",
+          "temperature_c": [
+            100,
+            120
+          ]
+        },
+        {
+          "plate": "Textured PEI Plate",
+          "temperature_c": [
+            100,
+            120
+          ]
+        }
+      ],
+      "drying_required": true,
+      "drying_conditions": [
+        {
+          "method": "blast_oven",
+          "name": "Blast Drying Oven",
+          "temperature_c": [
+            100,
+            140
+          ],
+          "hours": [
+            8,
+            12
+          ],
+          "notes": [
+            "Higher temperatures within this range improve drying."
+          ]
+        },
+        {
+          "method": "printer_heatbed",
+          "name": "Printer Heatbed",
+          "temperature_c": [
+            110,
+            120
+          ],
+          "hours": [
+            12,
+            12
+          ],
+          "notes": [
+            "Cover the filament and turn it halfway through drying."
+          ]
+        }
+      ],
+      "flow_ratio": null
+    }
+  ]
+}

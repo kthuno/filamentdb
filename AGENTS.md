@@ -93,6 +93,8 @@ Start locally with `python3 -m src.app` and open `http://127.0.0.1:49173`. Prese
 
 ## Deployment and versioning
 
+- When the user asks to merge into `main`, ask whether VERSION should be bumped before merging. If the user has already specified the version or explicitly declined a bump for that merge, follow that decision without asking again.
+
 - Explicitly inform the user of new or changed infrastructure requirements before implementation/deployment when a feature requires changes outside the app. This includes database grants, database/Docker versions, networking, ports, nginx, secrets, and external services. Describe the concrete change, reason, affected environment, and required user action; update the relevant `docs/` guide, README links, and any plan/status file. Do not assume app deployment changes host infrastructure.
 - The MySQL app account needs `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `CREATE`, `ALTER`, `INDEX`, and `REFERENCES` on the app database. Knowledge foreign keys require `REFERENCES`, an extension to the original grants. Do not change grants automatically during routine development or deployment.
 - Update with `python3 -m src.deploy`. The script requires Python on Linux/macOS and Docker Compose with `--wait`.

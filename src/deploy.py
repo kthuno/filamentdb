@@ -202,30 +202,62 @@ def deploy(bump=None, env_file=None, clean_images=False):
 def offer_git_push(version, no_push=False):
     if no_push or not sys.stdin.isatty():
         return
-    print("\nÆndringer i projektet:", flush=True)
-    subprocess.run(["git", "status", "--short"], cwd=ROOT, check=True)
+    status = subprocess.run(
+        ["git", "status", "--porcelain"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    changed = bool(status.stdout.strip())
+    if changed:
+        print("\nÆndringer i projektet:", flush=True)
+        print(status.stdout, end="", flush=True)
+        question = "Vil du committe og pushe ændringer til GitHub? [J/n] "
+    else:
+        ahead = subprocess.run(
+            ["git", "rev-list", "--count", "@{upstream}..HEAD"],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if ahead.returncode != 0:
+            print(
+                "Ingen filændringer. Upstream kunne ikke kontrolleres; "
+                "eventuelle lokale commits skal pushes manuelt."
+            )
+            return
+        count = int(ahead.stdout.strip())
+        if count == 0:
+            print("Ingen filændringer eller lokale commits at pushe.")
+            return
+        print(f"Ingen filændringer; {count} lokale commits mangler at blive pushet.")
+        question = "Vil du pushe de eksisterende commits til GitHub? [J/n] "
     try:
-        answer = input("Vil du committe og pushe ændringer til GitHub? [J/n] ")
+        answer = input(question)
         if answer.strip().lower() not in {"", "j", "ja", "y", "yes"}:
             print("Git-commit og push sprunget over.")
             return
-        default = f"Opdatér Filament DB til v{version}"
-        message = input(f"Commit-besked [Enter: {default}]: ").strip() or default
+        if changed:
+            default = f"Opdatér Filament DB til v{version}"
+            message = input(f"Commit-besked [Enter: {default}]: ").strip() or default
     except (EOFError, KeyboardInterrupt):
         print("\nGit-commit og push afbrudt.")
         return
-    subprocess.run(["git", "add", "--all", "."], cwd=ROOT, check=True)
-    staged = subprocess.run(
-        ["git", "diff", "--cached", "--quiet"], cwd=ROOT, check=False
-    )
-    if staged.returncode == 1:
-        subprocess.run(["git", "commit", "-m", message], cwd=ROOT, check=True)
-    elif staged.returncode != 0:
-        staged.check_returncode()
-    else:
-        print(
-            "Ingen nye ændringer at committe; pusher eventuelle eksisterende commits."
+    if changed:
+        subprocess.run(["git", "add", "--all", "."], cwd=ROOT, check=True)
+        staged = subprocess.run(
+            ["git", "diff", "--cached", "--quiet"], cwd=ROOT, check=False
         )
+        if staged.returncode == 1:
+            subprocess.run(["git", "commit", "-m", message], cwd=ROOT, check=True)
+        elif staged.returncode != 0:
+            staged.check_returncode()
+        else:
+            print(
+                "Ingen nye ændringer at committe; pusher eventuelle eksisterende commits."
+            )
     subprocess.run(["git", "push"], cwd=ROOT, check=True)
     print("Ændringer er pushet til den aktuelle branches upstream.")
 

@@ -299,11 +299,21 @@ class GitPushTest(unittest.TestCase):
                 self.subTest(answers=answers),
                 patch.object(deploy.sys.stdin, "isatty", return_value=True),
                 patch("builtins.input", side_effect=answers),
-                patch.object(deploy.subprocess, "run") as run,
+                patch.object(
+                    deploy.subprocess,
+                    "run",
+                    return_value=subprocess.CompletedProcess(
+                        [], 0, stdout=" M VERSION\n"
+                    ),
+                ) as run,
             ):
                 deploy.offer_git_push("1.2.3")
                 run.assert_called_once_with(
-                    ["git", "status", "--short"], cwd=deploy.ROOT, check=True
+                    ["git", "status", "--porcelain"],
+                    cwd=deploy.ROOT,
+                    check=True,
+                    capture_output=True,
+                    text=True,
                 )
 
     def test_yes_stages_commits_and_pushes_with_literal_message_or_default(self):
@@ -320,7 +330,7 @@ class GitPushTest(unittest.TestCase):
                     deploy.subprocess,
                     "run",
                     side_effect=[
-                        None,
+                        subprocess.CompletedProcess([], 0, stdout=" M VERSION\n"),
                         None,
                         subprocess.CompletedProcess([], 1),
                         None,
@@ -332,7 +342,13 @@ class GitPushTest(unittest.TestCase):
                 self.assertEqual(
                     run.call_args_list,
                     [
-                        call(["git", "status", "--short"], cwd=deploy.ROOT, check=True),
+                        call(
+                            ["git", "status", "--porcelain"],
+                            cwd=deploy.ROOT,
+                            check=True,
+                            capture_output=True,
+                            text=True,
+                        ),
                         call(["git", "add", "--all", "."], cwd=deploy.ROOT, check=True),
                         call(
                             ["git", "diff", "--cached", "--quiet"],
@@ -348,19 +364,83 @@ class GitPushTest(unittest.TestCase):
                     ],
                 )
 
-    def test_clean_index_pushes_without_empty_commit(self):
+    def test_changes_disappearing_after_prompt_do_not_create_empty_commit(self):
         with (
             patch.object(deploy.sys.stdin, "isatty", return_value=True),
             patch("builtins.input", side_effect=["j", ""]),
             patch.object(
                 deploy.subprocess,
                 "run",
-                side_effect=[None, None, subprocess.CompletedProcess([], 0), None],
+                side_effect=[
+                    subprocess.CompletedProcess([], 0, stdout=" M VERSION\n"),
+                    None,
+                    subprocess.CompletedProcess([], 0),
+                    None,
+                ],
             ) as run,
         ):
             deploy.offer_git_push("1.2.3")
             self.assertEqual(run.call_count, 4)
             self.assertEqual(run.call_args.args[0], ["git", "push"])
+
+    def test_clean_synced_branch_skips_prompt_and_push(self):
+        with (
+            patch.object(deploy.sys.stdin, "isatty", return_value=True),
+            patch("builtins.input") as prompt,
+            patch.object(
+                deploy.subprocess,
+                "run",
+                side_effect=[
+                    subprocess.CompletedProcess([], 0, stdout=""),
+                    subprocess.CompletedProcess([], 0, stdout="0\n"),
+                ],
+            ) as run,
+        ):
+            deploy.offer_git_push("1.2.3")
+            prompt.assert_not_called()
+            self.assertEqual(run.call_count, 2)
+            self.assertEqual(
+                run.call_args.args[0],
+                ["git", "rev-list", "--count", "@{upstream}..HEAD"],
+            )
+
+    def test_clean_branch_with_commits_only_offers_push(self):
+        with (
+            patch.object(deploy.sys.stdin, "isatty", return_value=True),
+            patch("builtins.input", return_value="j") as prompt,
+            patch.object(
+                deploy.subprocess,
+                "run",
+                side_effect=[
+                    subprocess.CompletedProcess([], 0, stdout=""),
+                    subprocess.CompletedProcess([], 0, stdout="2\n"),
+                    None,
+                ],
+            ) as run,
+        ):
+            deploy.offer_git_push("1.2.3")
+            prompt.assert_called_once()
+            self.assertEqual(run.call_count, 3)
+            self.assertEqual(run.call_args.args[0], ["git", "push"])
+
+    def test_clean_branch_without_upstream_skips_prompt_and_push(self):
+        with (
+            patch.object(deploy.sys.stdin, "isatty", return_value=True),
+            patch("builtins.input") as prompt,
+            patch.object(
+                deploy.subprocess,
+                "run",
+                side_effect=[
+                    subprocess.CompletedProcess([], 0, stdout=""),
+                    subprocess.CompletedProcess(
+                        [], 128, stdout="", stderr="No upstream"
+                    ),
+                ],
+            ) as run,
+        ):
+            deploy.offer_git_push("1.2.3")
+            prompt.assert_not_called()
+            self.assertEqual(run.call_count, 2)
 
     def test_commit_failure_stops_before_push(self):
         with (
@@ -370,7 +450,7 @@ class GitPushTest(unittest.TestCase):
                 deploy.subprocess,
                 "run",
                 side_effect=[
-                    None,
+                    subprocess.CompletedProcess([], 0, stdout=" M VERSION\n"),
                     None,
                     subprocess.CompletedProcess([], 1),
                     subprocess.CalledProcessError(1, ["git", "commit"]),
