@@ -938,7 +938,9 @@ test('Administration stays below primary navigation and owns the printer setting
   const mainNav=html.match(/<nav class="main-nav"[^>]*>([\s\S]*?)<\/nav>/)[1];
   assert.ok(!mainNav.includes('id="nav-admin"'));
   assert.match(html,/<\/nav><nav class="admin-nav"[^>]*><a class="nav" id="nav-admin" href="#admin"/);
-  assert.ok(html.indexOf('id="nav-admin"')<html.indexOf('<div class="aside-bottom">'));
+  assert.match(html,/<span data-i18n-text="0:admin.title">Administration<\/span><\/a><\/nav><\/aside>/);
+  assert.ok(!html.includes('class="aside-bottom"'));
+  assert.ok(!html.includes('id="reload-app"'));
   const qr=html.slice(html.indexOf('<section id="qr-labels-view"'),html.indexOf('<section id="admin-view"'));
   const admin=html.slice(html.indexOf('<section id="admin-view"'),html.indexOf('<footer>'));
   assert.ok(!qr.includes('id="m220-panel"'));
