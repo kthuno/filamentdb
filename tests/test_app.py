@@ -203,7 +203,11 @@ class ApiTest(unittest.TestCase):
                 "tags": ["Delete test"],
             },
         )
-        article = json.load(self.request("/api/knowledge?q=Delete+API+article"))[0]
+        article = next(
+            row
+            for row in json.load(self.request("/api/knowledge?q=Delete+API+article"))
+            if row["title"] == "Delete API article"
+        )
         path = f"/api/knowledge/{article['id']}"
         with self.assertRaises(urllib.error.HTTPError) as error:
             self.request(path, "DELETE", headers={"Origin": "https://other.invalid"})
@@ -215,8 +219,15 @@ class ApiTest(unittest.TestCase):
                 self.request(path, method)
             self.assertEqual(error.exception.code, 404)
             error.exception.close()
-        self.assertEqual(
-            json.load(self.request("/api/knowledge?q=Delete+API+article")), []
+        # MySQL full-text search may still match other articles containing "API".
+        self.assertNotIn(
+            article["id"],
+            {
+                row["id"]
+                for row in json.load(
+                    self.request("/api/knowledge?q=Delete+API+article")
+                )
+            },
         )
         self.assertNotIn(
             "Delete test",
