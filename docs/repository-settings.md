@@ -27,7 +27,8 @@ Create an active branch ruleset targeting `main`:
 - Block force pushes and branch deletion.
 - Require linear history.
 - Require these status checks after CI has run once: `Python 3.11`, `Python 3.13`,
-  `Python lint`, and `Frontend`. Select GitHub Actions as their expected source.
+  `Python 3.15`, `Python lint`, `Frontend`, and `Docker build and smoke`. Select
+  GitHub Actions as their expected source.
 - Require branches to be up to date before merging.
 - Leave the bypass list empty for normal operation.
 
