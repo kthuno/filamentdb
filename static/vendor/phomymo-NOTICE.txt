@@ -1,0 +1,59 @@
+Phomymo portions used by Filament DB
+
+Origin: https://github.com/transcriptionstream/phomymo
+Pinned commit: 1f58d3f0e7f941b9143277cda828380149e56855
+Attribution: transcriptionstream and the Phomymo contributors.
+
+License basis: upstream README declares MIT; the Filament DB project owner
+confirmed MIT for this integration. At the pinned commit, no root LICENSE file
+is present and package.json separately declares ISC. This discrepancy is
+recorded here rather than presenting a fabricated upstream LICENSE file or
+copyright year. The inspected source portions contain no copyright header.
+Filament DB's own repository license remains unchanged.
+
+Adapted portions:
+- src/web/printer.js: densityToHeatTime, M-series CMD, printBLE and printUSB;
+  kept command bytes, order, chunk sizes and pacing; removed logging and other
+  model protocols. Used in ../printer-protocol-m220.js.
+- src/web/canvas.js: text rendering/wrapping/auto-sizing, RGBA-to-grayscale,
+  Floyd-Steinberg, Atkinson and ordered dithering. Used in ../label-renderer.js
+  and ../label-raster.js. Removed editor state, external libraries, caches and
+  global UI dependencies. Added validation, binary endpoint preservation,
+  QR protection and pixel-exact right-aligned packing.
+- src/web/ble.js and src/web/usb.js: GATT characteristic selection and USB
+  open/claim/OUT transfer structure, adapted in ../printer-bluetooth.js and
+  ../printer-usb.js. Removed singletons, automatic reconnect, chooser retries,
+  write fallback/replay, status queries, unrelated models and broad discovery.
+  Added cancellation, explicit capability checks and USB alternate/interface
+  selection by descriptors rather than interface-array indexes.
+- src/web/printers.json and src/web/constants.js: M220 facts, service/write
+  identifiers and defaults, represented in ../printer-definitions.js and
+  ../print-jobs.js. No complete upstream application is bundled.
+
+The two design reference JSON files were supplied by the Filament DB project
+owner and used to verify initial Phomymo v3 import compatibility. The example
+files and obsolete embedded example layout were subsequently removed at the
+owner's request. Native labels now share the existing SVG labels' layout,
+material band and Bambu Lab wordmark. That logo retains its separate CC BY-SA
+4.0 attribution in vendor/bambu-lab-logo.js and its embedded image metadata.
+Synthetic supported-element designs cover JSON compatibility in tests.
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

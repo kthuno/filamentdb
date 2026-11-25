@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Filament DB",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "src.app",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "HOST": "127.0.0.1",
+        "PORT": "49173"
+      }
+    }
+  ]
+}

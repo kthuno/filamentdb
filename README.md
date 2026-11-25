@@ -21,8 +21,9 @@ See [Getting started](docs/getting-started.md) for configuration and browser app
 | Topic | Contents |
 |---|---|
 | [Inventory and locations](docs/inventory-and-locations.md) | Spools, [material type administration](docs/inventory-and-locations.md#material-type-administration), AMS, QR labels, [M220 thermal labels](docs/inventory-and-locations.md#phomemo-m220-labels), and archiving |
-| [Direct M220 Bluetooth printing](docs/m220-bluetooth.md) | Administration printer settings, optional direct label printing, browser requirements, protocol analysis, and removal |
 | [Manufacturer material profiles](docs/material-profiles.md) | Bambu guide lookup, source provenance, and label defaults |
+| [Native M220 printing](docs/native-printing.md) | Editable Phomymo-compatible designs, USB/Bluetooth, monochrome preview, JSON/PNG export, and physical verification |
+| [Label templates and variables](docs/label-templates.md) | Import one JSON template per size, use spool variables, and download ready-to-edit examples |
 | [Prints and consumption](docs/prints-and-consumption.md) | Print records, individual consumption, waste, history, and statistics |
 | [Projects and shopping](docs/projects-and-shopping.md) | 3MF projects, build plates, filament requirements, and shopping lists |
 | [File archive](docs/file-archive.md) | Uploads, estimates, images, and print history per file |
@@ -38,7 +39,7 @@ See [Getting started](docs/getting-started.md) for configuration and browser app
 | [MySQL in production](docs/mysql.md) | Connections, environment files, and required database privileges |
 | [Backup and restore](docs/backup.md) | Combined backups of the database and original 3MF files |
 
-Administration stays at the bottom of the navigation and groups browser-local language/printer settings with shared material type, build plate, and lessons category management. It also shows the running app version, configured SQLite/MySQL backend, a database-readability indicator with the duration of a fixed SELECT query.
+Administration stays at the bottom of the navigation and groups browser-local language settings with shared material type, build plate, and lessons category management. It also shows the running app version, configured SQLite/MySQL backend, a database-readability indicator with the duration of a fixed SELECT query.
 
 The app has no login. The default setup publishes port **49173** on localhost only; an existing nginx handles HTTPS and any access control. CSV exports inventory; a complete backup must include both the database and file archive.
 

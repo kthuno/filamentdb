@@ -128,12 +128,32 @@ Healthchecks run every second during the first 30 seconds of startup, then every
 
 Ordinary `docker compose` commands, restarts, and default script deployments do not increment the version. Only an explicit `--bump` requests an increment. Direct `python3 -m src.app` and ordinary Docker builds use `VERSION` unless `APP_VERSION` is set. Versioning does not change the filament database.
 
+## Native M220 printing
+
+The [native label editor and USB/Bluetooth printing](native-printing.md) run on
+the client device. No new service, port, server device passthrough, database
+grant or Python dependency is required. Network clients need the existing
+trusted HTTPS address; localhost is allowed for local development. Deployment
+does not install certificates, alter host nginx or enable browser device APIs.
+The app remains on `127.0.0.1:49173` in the standard deployment.
+
+WebUSB additionally depends on client OS device permissions and drivers. A
+Windows client may require an appropriate WinUSB interface driver; Linux may
+require USB permissions. Existing drivers/applications can hold the interface.
+Filament DB does not change drivers or OS permissions automatically. Unsupported
+browsers retain editing and JSON/PNG export. See the native printing guide for
+platform limitations and the distinction between automated and physical tests.
+
 ## See also
 
 - [MySQL in production](mysql.md)
 - [Backup and restore](backup.md)
 - [OpenAI configuration](ai-suggestions.md)
 
-## Direct M220 Bluetooth printing
+## Shared label template storage
 
-The optional [M220 Bluetooth extension](m220-bluetooth.md) runs on the client device, not in the app container. It requires a browser supporting Web Bluetooth and a trusted HTTPS app address for network access. Localhost is allowed for development, but its QR links are not reachable from a phone. If the app is currently used via HTTP on the LAN, provide/use its HTTPS address and certificate through the existing host proxy before trying Bluetooth; deploying Filament DB does not provision certificates or change host nginx. Existing HTTPS deployments require no proxy changes. The browser requests explicit printer permission when the user clicks Connect. No new port, Bluetooth device passthrough, service, package, or database grant is required on the server.
+Startup creates the `label_templates` table on SQLite and MySQL automatically.
+It uses the existing app schema privileges; no additional ports, services or
+grants are required. Back up the active database to preserve shared templates.
+Individual saved label edits remain browser-local. See [label templates](label-templates.md)
+for transferring legacy browser templates and previewing spool data.

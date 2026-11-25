@@ -8,7 +8,7 @@ import { initFiles, loadFileArchive } from './files.js';
 import { edit, handleSpoolLink, initInventory, populateMaterialTypes, renderInventory, resetSpoolLink } from './inventory.js';
 import { fetchInventory, fetchUsage, inventoryState } from './inventory-data.js';
 import { initKnowledge, loadKnowledgeCategories, showKnowledgeRoute } from './knowledge.js';
-import { initLabels } from './labels.js';
+import { initLabels, refreshLabels } from './labels.js';
 import { initLocations, renderLocations } from './locations.js';
 import { initPrints } from './prints.js';
 import { initProjects, loadBuildPlates, loadProjects, offerCompletedProjectDeletion } from './projects.js';
@@ -68,6 +68,7 @@ async function load() {
   $('#material-filter').value = current;
   renderLocations();
   render();
+  await refreshLabels();
   await handleSpoolLink();
 }
 function renderUsage() {

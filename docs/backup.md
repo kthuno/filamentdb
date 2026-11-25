@@ -2,7 +2,7 @@
 
 [Back to README](../README.md)
 
-Back up the database the app currently uses. The old SQLite volume is not a backup of new MySQL records. CSV is not a complete database backup either.
+Back up the database the app currently uses. The old SQLite volume is not a backup of new MySQL records. CSV is not a complete database backup either. Shared label templates are included in database backups; browser-local individual label designs, printer settings and legacy template copies are not. See [label templates](label-templates.md) for migration and export.
 
 The file archive requires a combined backup of the database and original files. Stop the app during the combined backup so uploads and deletions cannot change links:
 

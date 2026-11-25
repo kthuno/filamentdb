@@ -71,25 +71,6 @@ test('thermal label escapes all user text and uses manufacturer text for other b
   assert.throws(()=>thermalLabel(spool,'https://example.com/'+ 'a'.repeat(1200),{size:'40x30'}),/too long/);
 });
 
-test('single-spool dialog resets label overrides and retains the permanent QR destination',async()=>{
-  const nodes=new Map();
-  const context=vm.createContext({URL,Intl,window:{location:{href:link},addEventListener(){}},document:{querySelector(selector){
-    if(!nodes.has(selector))nodes.set(selector,{value:'',classList:{toggle(){}},showModal(){this.open=true;}});
-    return nodes.get(selector);
-  }}});
-  const graph=await loadFrontend(context,[],{entry:'labels.js',init:false});
-  context.inventoryState.spools=[{...spool,nozzle_temp:270,bed_temp:90},{...spool,id:13,label_token:'permanent-13',nozzle_temp:0,bed_temp:0}];
-  graph.namespace.openLabel(12);
-  assert.equal(nodes.get('#thermal-nozzle').value,'270°C');
-  assert.equal(nodes.get('#thermal-bed').value,'90°C');
-  assert.equal(nodes.get('#thermal-download').disabled,false);
-  assert.match(nodes.get('#thermal-preview').innerHTML,/PAHT CF/);
-  nodes.get('#thermal-flow').value='0.96';
-  nodes.get('#thermal-drying').value='80°C/12h';
-  graph.namespace.openLabel(13);
-  for(const id of ['nozzle','bed','flow','drying'])assert.equal(nodes.get('#thermal-'+id).value,'');
-  assert.equal(nodes.get('#label-link').value,'https://filament.example.com/#spool/permanent-13');
-});
 
 test('PNG export uses printer-dot dimensions, thresholds every pixel, and releases its SVG URL',async()=>{
   const {labelPng}=await import('../static/thermal-labels.js');
@@ -126,7 +107,7 @@ async function profileDialog(fetch) {
   const nodes=new Map();
   const context=vm.createContext({URL,URLSearchParams,Intl,fetch,
     window:{location:{href:link},addEventListener(){}},document:{querySelector(selector){
-      if(!nodes.has(selector))nodes.set(selector,{value:'',classList:{toggle(){}},showModal(){},setAttribute(){}});
+      if(!nodes.has(selector))nodes.set(selector,{value:'',dataset:{},classList:{toggle(){}},setAttribute(){}});
       return nodes.get(selector);
     }},
   });
@@ -136,55 +117,8 @@ async function profileDialog(fetch) {
   return {nodes,context,labels:graph.namespace};
 }
 
-test('guide fills only empty fields, preserves saved temperatures, and offers explicit plate/method choices',async()=>{
-  const profile=profileFixture();
-  const {nodes,labels}=await profileDialog(async url=>{
-    assert.match(url,/manufacturer=Bambu\+Lab&material=PAHT\+CF/);
-    return {ok:true,json:async()=>profile};
-  });
-  await labels.openLabel(12);
-  assert.equal(nodes.get('#thermal-nozzle').value,'270°C');
-  assert.equal(nodes.get('#thermal-bed').value,'90°C');
-  assert.equal(nodes.get('#thermal-drying').value,'80°C/8–12h');
-  assert.equal(nodes.get('#thermal-flow').value,'');
-  assert.match(nodes.get('#thermal-flow-note').textContent,/ikke flow ratio/);
-  assert.match(nodes.get('#thermal-plate').innerHTML,/Textured PEI Plate/);
-  assert.equal(nodes.get('#thermal-guide-controls').hidden,false);
-  nodes.get('#thermal-use-guide').onclick();
-  assert.equal(nodes.get('#thermal-nozzle').value,'260–300°C');
-  assert.equal(nodes.get('#thermal-bed').value,'100–120°C');
-  nodes.get('#thermal-drying-method').value='1';
-  nodes.get('#thermal-drying-method').onchange();
-  assert.equal(nodes.get('#thermal-drying').value,'90–100°C/12h');
-  assert.match(nodes.get('#thermal-drying-note').textContent,/vend det halvvejs/);
-});
 
-test('slow profile responses preserve in-progress edits and cannot overwrite a newly opened spool',async()=>{
-  const pending=[];
-  const {nodes,labels}=await profileDialog(()=>new Promise(resolve=>pending.push(resolve)));
-  const first=labels.openLabel(12);
-  nodes.get('#thermal-drying').value='75°C/10h';
-  nodes.get('#thermal-drying').oninput();
-  pending.shift()({ok:true,json:async()=>profileFixture()});
-  await first;
-  assert.equal(nodes.get('#thermal-drying').value,'75°C/10h');
-  const second=labels.openLabel(12);
-  const third=labels.openLabel(13);
-  const [resolveSecond,resolveThird]=pending;
-  resolveThird({ok:true,json:async()=>null});await third;
-  resolveSecond({ok:true,json:async()=>profileFixture()});await second;
-  assert.equal(nodes.get('#thermal-drying').value,'');
-  assert.equal(nodes.get('#thermal-guide-controls').hidden,true);
-  assert.match(nodes.get('#thermal-guide-status').textContent,/Ingen præcis profil/);
-});
 
-test('failed profile lookup leaves manual label generation usable',async()=>{
-  const {nodes,labels}=await profileDialog(async()=>{throw new Error('offline');});
-  await labels.openLabel(12);
-  assert.match(nodes.get('#thermal-guide-status').textContent,/kunne ikke hentes/);
-  assert.equal(nodes.get('#thermal-download').disabled,false);
-  assert.equal(nodes.get('#thermal-nozzle').value,'270°C');
-});
 
 test('label gallery loads shared guide once, preserves edits during lookup, and prints edited values',async()=>{
   let resolveProfile,requests=0,prints=0;
@@ -222,7 +156,7 @@ test('label gallery loads shared guide once, preserves edits during lookup, and 
   assert.match(cards.get(13).querySelector('.gallery-preview').innerHTML,/260–300°C/);
   await nodes.get('#label-gallery-open').onclick();
   assert.equal(nodes.get('#label-gallery').hidden,true);
-  assert.equal(nodes.get('#label-gallery-open').textContent,'Dan alle labelbilleder');
+  assert.equal(nodes.get('#label-gallery-open').textContent,'Vis labelbilleder');
   await nodes.get('#label-gallery-open').onclick();
   assert.equal(nodes.get('#label-gallery').hidden,false);
   assert.equal(nodes.get('#label-gallery-open').textContent,'Skjul labelbilleder');
@@ -232,9 +166,9 @@ test('label gallery loads shared guide once, preserves edits during lookup, and 
   const button={dataset:{galleryAction:'print'},closest:()=>card};
   await nodes.get('#label-gallery').onclick({target:{closest:()=>button}});
   assert.equal(prints,1);
-  assert.equal(nodes.get('#thermal-nozzle').value,'275°C');
-  assert.equal(nodes.get('#thermal-bed').value,'100–120°C');
-  assert.equal(nodes.get('#thermal-layout').value,'extended');
+  assert.match(nodes.get('#single-label-print').innerHTML,/275°C/);
+  assert.match(nodes.get('#single-label-print').innerHTML,/100–120°C/);
+  assert.equal(nodes.get('#single-label-print').dataset.printActive,'true');
   assert.equal(context.inventoryState.spools[0].nozzle_temp,270);
 });
 

@@ -13,6 +13,7 @@ from .config import ROOT, VERSION
 from .database import connect
 from .file_archive import apply_estimates, get_file, storage_path
 from .i18n import choose_language, locale_asset, translated_value
+from .label_templates import list_templates
 from .planning import planning_overview
 from .three_mf import extract_3mf
 from .validation import FIELDS
@@ -21,6 +22,11 @@ from .validation import FIELDS
 class ReadRoutes:
     def do_GET(self):
         path = urlparse(self.path).path
+        if path == "/api/label-templates":
+            with closing(connect()) as conn:
+                return self.respond(
+                    200, {"templates": list_templates(conn), "app_version": VERSION}
+                )
         if path in {
             "/api/knowledge",
             "/api/knowledge-categories",
@@ -428,19 +434,63 @@ class ReadRoutes:
             "/dashboard.js": ("dashboard.js", "text/javascript; charset=utf-8"),
             "/consumption.js": ("consumption.js", "text/javascript; charset=utf-8"),
             "/labels.js": ("labels.js", "text/javascript; charset=utf-8"),
-            "/thermal-labels.js": (
-                "thermal-labels.js",
+            "/label-list-model.js": (
+                "label-list-model.js",
                 "text/javascript; charset=utf-8",
             ),
-            "/m220-bluetooth.js": (
-                "m220-bluetooth.js",
+            "/label-style.js": ("label-style.js", "text/javascript; charset=utf-8"),
+            "/label-template-store.js": (
+                "label-template-store.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/label-templates.js": (
+                "label-templates.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/label-template-settings.js": (
+                "label-template-settings.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/label-design.js": ("label-design.js", "text/javascript; charset=utf-8"),
+            "/label-renderer.js": (
+                "label-renderer.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/label-raster.js": ("label-raster.js", "text/javascript; charset=utf-8"),
+            "/label-print-dialog.js": (
+                "label-print-dialog.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/printer-definitions.js": (
+                "printer-definitions.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/printer-transport.js": (
+                "printer-transport.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/printer-bluetooth.js": (
+                "printer-bluetooth.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/printer-usb.js": ("printer-usb.js", "text/javascript; charset=utf-8"),
+            "/printer-protocol-m220.js": (
+                "printer-protocol-m220.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/print-jobs.js": ("print-jobs.js", "text/javascript; charset=utf-8"),
+            "/thermal-labels.js": (
+                "thermal-labels.js",
                 "text/javascript; charset=utf-8",
             ),
             "/administration.js": (
                 "administration.js",
                 "text/javascript; charset=utf-8",
             ),
-            "/m220-printing.js": ("m220-printing.js", "text/javascript; charset=utf-8"),
+            "/vendor/phomymo-NOTICE.txt": (
+                "vendor/phomymo-NOTICE.txt",
+                "text/plain; charset=utf-8",
+            ),
             "/vendor/bambu-lab-logo.js": (
                 "vendor/bambu-lab-logo.js",
                 "text/javascript; charset=utf-8",

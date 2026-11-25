@@ -95,17 +95,17 @@ test('failed material writes preserve the form and show the server validation er
 test('Administration shortcuts scroll to visible cards without changing unfinished values',async()=>{
   const ui=await setup();
   const materials=ui.context.document.querySelector('#admin-materials');
-  const printer=ui.context.document.querySelector('#m220-panel');
-  let materialScrolls=0,printerScrolls=0;
+  const language=ui.context.document.querySelector('#admin-language');
+  let materialScrolls=0,languageScrolls=0;
   materials.scrollIntoView=()=>{materialScrolls++;};
-  printer.scrollIntoView=()=>{printerScrolls++;};
+  language.scrollIntoView=()=>{languageScrolls++;};
   ui.nodes.get('#material-type-name').value='Unfinished blend';
   ui.admin.openAdministrationSection('#admin/materials');
-  ui.admin.openAdministrationSection('#admin/printer');
+  ui.admin.openAdministrationSection('#admin/language');
   assert.equal(materialScrolls,1);
-  assert.equal(printerScrolls,1);
+  assert.equal(languageScrolls,1);
   assert.equal(materials.open,undefined);
-  assert.equal(printer.open,undefined);
+  assert.equal(language.open,undefined);
   assert.equal(ui.nodes.get('#material-type-name').value,'Unfinished blend');
   for(const unknown of ['#admin','#admin/unknown','#admin/constructor'])assert.doesNotThrow(()=>ui.admin.openAdministrationSection(unknown));
 });
@@ -114,15 +114,15 @@ test('Administration groups visible cards and places language beside version/dat
   const fs=require('node:fs');
   const html=fs.readFileSync('static/index.html','utf8');
   const admin=html.slice(html.indexOf('<section id="admin-view"'),html.indexOf('<footer>'));
-  assert.equal((admin.match(/class="admin-panel admin-scope-/g)||[]).length,6);
+  assert.equal((admin.match(/class="admin-panel admin-scope-/g)||[]).length,5);
   assert.ok(!admin.includes('<details'));
   assert.ok(!admin.includes('<summary'));
-  assert.equal((admin.match(/class="admin-card-header"/g)||[]).length,6);
-  assert.equal((admin.match(/class="admin-group"/g)||[]).length,3);
-  const overview=admin.slice(admin.indexOf('class="admin-overview-grid"'),admin.indexOf('<section id="admin-printing"'));
+  assert.equal((admin.match(/class="admin-card-header"/g)||[]).length,5);
+  assert.equal((admin.match(/class="admin-group"/g)||[]).length,2);
+  const overview=admin.slice(admin.indexOf('class="admin-overview-grid"'),admin.indexOf('<section id="admin-shared"'));
   assert.ok(overview.includes('id="admin-language"'));
   assert.ok(overview.includes('id="admin-info"'));
-  for(const route of ['language','printer','build-plates','materials','categories','info'])assert.ok(admin.includes('href="#admin/'+route+'"'));
+  for(const route of ['language','build-plates','materials','categories','info'])assert.ok(admin.includes('href="#admin/'+route+'"'));
 });
 
 
