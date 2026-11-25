@@ -7,6 +7,7 @@ import uuid
 from .archive_links import backfill_print_archive_links
 from .config import DB
 from .knowledge import initialize as initialize_knowledge
+from .label_templates import initialize as initialize_label_templates
 from .locations import sync_ams_slots
 from .material_profiles import initialize as initialize_material_profiles
 from .material_profiles import seed as seed_material_profiles
@@ -40,6 +41,7 @@ def initialize():
             mysql_backend.initialize(conn)
             initialize_knowledge(conn, mysql=True)
             initialize_material_profiles(conn, mysql=True)
+            initialize_label_templates(conn, mysql=True)
             conn.commit()
             mysql_backend.seed(conn)
             seed_materials(conn)
@@ -257,5 +259,6 @@ def initialize():
             seed_materials(conn)
         initialize_knowledge(conn)
         initialize_material_profiles(conn)
+        initialize_label_templates(conn)
         seed_material_profiles(conn)
         sync_ams_slots(conn, migrating=True)

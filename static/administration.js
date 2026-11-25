@@ -112,7 +112,7 @@ function initAdministration({onMaterialsChanged}) {
 export { initAdministration, loadMaterialTypeAdmin, loadApplicationInfo, loadVersionInfo, loadDatabaseStatus, openAdministrationSection };
 
 function openAdministrationSection(hash) {
-  const targets={language:'admin-language',printer:'m220-panel','build-plates':'build-plates-view',materials:'admin-materials',categories:'admin-categories',info:'admin-info'};
+  const targets={language:'admin-language','build-plates':'build-plates-view',materials:'admin-materials',categories:'admin-categories',info:'admin-info'};
   const key=hash.replace(/^#admin\//,'');
   if(!Object.hasOwn(targets,key))return;
   const target=targets[key];

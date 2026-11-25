@@ -1,9 +1,12 @@
 import { t, th } from './i18n.js';
-import { $, compareLocations, esc, productLink, request } from './core.js';
+import { $, compareLocations, esc, number, productLink, request } from './core.js';
 import { inventoryState } from './inventory-data.js';
 import qrcodegen from './vendor/qrcodegen.js';
 import { LABEL_SIZES, thermalLabel, labelPng } from './thermal-labels.js';
-import { initM220Printing } from './m220-printing.js';
+import { openNativeLabelPrinter } from './label-print-dialog.js';
+import { initLabelTemplateSettings, refreshLabelTemplateSpools } from './label-template-settings.js';
+import { filterLabelSpools, labelListPage } from './label-list-model.js';
+import { isBambuBrand } from './label-style.js';
 // QR label rendering, selection and print lifecycle.
 function spoolLink(spool) {
   const url = new URL(window.location.href);
@@ -29,108 +32,8 @@ function labelMaterial(spool) {
 }
 let labelRecords = [];
 let selectedLabelIds = new Set();
-let currentLabelSpool = null;
-let currentThermalLabel = null;
-let currentLabelProfile = null;
-let labelLookupVersion = 0;
-let dirtyLabelFields = new Set();
-function profileRange(values,unit) {
-  return `${values[0]}${values[0]===values[1]?'':`–${values[1]}`}${unit}`;
-}
-function selectedProfileDrying() {
-  return currentLabelProfile?.drying_conditions[Number($('#thermal-drying-method').value || 0)];
-}
-function applyProfileField(field,value,force=false) {
-  if(force || (!dirtyLabelFields.has(field) && !$('#thermal-'+field).value))$('#thermal-'+field).value=value;
-}
-function applyProfileDrying(force=false) {
-  const condition=selectedProfileDrying();
-  if(!condition)return;
-  applyProfileField('drying',`${profileRange(condition.temperature_c,'°C')}/${profileRange(condition.hours,'h')}`,force);
-  const notes=[];
-  if(condition.method==='printer_heatbed')notes.push(t('labels.heatbed_drying_note'));
-  if(['PPS-CF','PPA-CF'].includes(currentLabelProfile.material) && condition.method==='blast_oven')notes.push(t('labels.high_temp_drying_note'));
-  if(currentLabelProfile.material==='PPS-CF' && condition.method==='printer_heatbed')notes.push(t('labels.less_effective_drying_note'));
-  $('#thermal-drying-note').textContent=notes.join(' ');
-}
-function applyProfileBed(force=false) {
-  const plate=currentLabelProfile?.bed_temperatures[Number($('#thermal-plate').value || 0)];
-  if(plate)applyProfileField('bed',profileRange(plate.temperature_c,'°C'),force);
-}
-async function loadLabelProfile(spool,version) {
-  if(!/^bambu(?:\s*lab)?$/i.test(String(spool.manufacturer || '').trim())) {
-    $('#thermal-guide-status').textContent=t('labels.no_profile');
-    return;
-  }
-  $('#thermal-guide-status').textContent=t('labels.loading_profile');
-  try {
-    const params=new URLSearchParams({manufacturer:spool.manufacturer,material:spool.material});
-    const profile=await request('/api/material-profiles?'+params);
-    if(version!==labelLookupVersion)return;
-    currentLabelProfile=profile;
-    if(!profile) {
-      $('#thermal-guide-status').textContent=t('labels.no_profile');
-      return;
-    }
-    $('#thermal-plate').innerHTML=profile.bed_temperatures.map((plate,index)=>`<option value="${index}">${esc(plate.plate)} · ${esc(profileRange(plate.temperature_c,'°C'))}</option>`).join('');
-    const textured=profile.bed_temperatures.findIndex(plate=>plate.plate==='Textured PEI Plate');
-    $('#thermal-plate').value=String(Math.max(0,textured));
-    $('#thermal-drying-method').innerHTML=profile.drying_conditions.map((condition,index)=>`<option value="${index}">${esc(condition.method==='blast_oven'?t('labels.drying_method_blast_oven'):t('labels.drying_method_printer_heatbed'))}</option>`).join('');
-    $('#thermal-drying-method').value='0';
-    $('#thermal-guide-source').href=productLink(profile.source_url);
-    $('#thermal-guide-controls').hidden=false;
-    $('#thermal-guide-status').textContent=t('labels.profile_found',{material:profile.material});
-    applyProfileField('nozzle',profileRange(profile.nozzle_temperature_c,'°C'));
-    applyProfileBed();
-    applyProfileDrying();
-    if(profile.flow_ratio!=null)applyProfileField('flow',String(profile.flow_ratio));
-    $('#thermal-flow-note').textContent=profile.flow_ratio==null?t('labels.flow_not_in_guide'):'';
-    refreshThermalLabel();
-  } catch {
-    if(version!==labelLookupVersion)return;
-    $('#thermal-guide-status').textContent=t('labels.profile_error');
-  }
-}
-function thermalOptions() {
-  return {
-    size: $('#thermal-size').value || '60x40',
-    layout: $('#thermal-layout').value || 'extended',
-    nozzle: $('#thermal-nozzle').value,
-    bed: $('#thermal-bed').value,
-    flow: $('#thermal-flow').value,
-    drying: $('#thermal-drying').value,
-  };
-}
-function refreshThermalLabel() {
-  if(!currentLabelSpool)return;
-  const options=thermalOptions();
-  const thermal=options.layout!=='classic';
-  $('#label-dialog').classList.toggle('thermal-label-active',thermal);
-  $('#legacy-label').hidden=thermal;
-  $('#thermal-preview').hidden=!thermal;
-  $('#thermal-settings').hidden=!thermal;
-  $('#thermal-download').hidden=!thermal;
-  $('#thermal-hint').hidden=!thermal;
-  $('#thermal-quality').hidden=!thermal;
-  $('#thermal-filetype-field').hidden=!thermal;
-  $('#label-error').textContent='';
-  currentThermalLabel=null;
-  $('#thermal-preview').innerHTML='';
-  $('#thermal-download').disabled=true;
-  $('#label-print').disabled=false;
-  if(!thermal)return;
-  try {
-    currentThermalLabel=thermalLabel(currentLabelSpool,spoolLink(currentLabelSpool),options);
-    $('#thermal-preview').innerHTML=currentThermalLabel.svg;
-    $('#thermal-download').disabled=false;
-    $('#thermal-page-style').textContent=`@media print { @page thermal-label { size: ${currentThermalLabel.mmWidth}mm ${currentThermalLabel.mmHeight}mm; margin: 0; } }`;
-    $('#thermal-quality').textContent=currentThermalLabel.moduleDots<3?t('labels.small_qr'):'';
-  } catch(error) {
-    $('#label-error').textContent=error.message;
-    $('#label-print').disabled=true;
-    $('#thermal-quality').textContent='';
-  }
-}
+
+function profileRange(values,unit) { return `${values[0]}${values[0]===values[1]?'':`–${values[1]}`}${unit}`; }
 async function saveLabelImage(spool,label,options,format) {
   const description=[spool.material,spool.color]
     .filter(Boolean).join('-').replace(/[<>:"/\\|?*\u0000-\u001f]/g,'-').replace(/\s+/g,'-').replace(/-+/g,'-').replace(/^[.-]+|[.-]+$/g,'');
@@ -146,19 +49,6 @@ async function saveLabelImage(spool,label,options,format) {
     setTimeout(()=>URL.revokeObjectURL(url),30000);
   }
 }
-async function downloadThermalLabel() {
-  if(!currentThermalLabel || !currentLabelSpool)return;
-  $('#thermal-download').disabled=true;
-  $('#label-error').textContent='';
-  try {
-    await saveLabelImage(currentLabelSpool,currentThermalLabel,thermalOptions(),$('#thermal-filetype').value || 'png');
-  } catch {
-    $('#label-error').textContent=t('labels.download_error');
-  } finally { $('#thermal-download').disabled=!currentThermalLabel; }
-}
-
-let galleryVersion=0;
-let galleryLabels=new Map();
 function galleryDefaults(spool,profile) {
   const plate=profile?.bed_temperatures.find(item=>item.plate==='Textured PEI Plate') || profile?.bed_temperatures[0];
   const drying=profile?.drying_conditions[0];
@@ -170,6 +60,77 @@ function galleryDefaults(spool,profile) {
     drying:drying ? `${profileRange(drying.temperature_c,'°C')}/${profileRange(drying.hours,'h')}` : '',
   };
 }
+let galleryVersion=0,nativeListVersion=0,nativeOpenVersion=0;
+let galleryLabels=new Map();
+let galleryPage=0,nativePage=0;
+const labelProfileCache=new Map();
+let labelProfileActive=0;
+const labelProfileWaiters=[];
+function labelFilters() {
+  return {search:$('#label-search').value,material:$('#label-material-filter').value,manufacturer:$('#label-manufacturer-filter').value};
+}
+function filteredLabelEntries() {
+  return filterLabelSpools([...galleryLabels.values()].map(entry=>entry.spool),labelFilters()).map(spool=>galleryLabels.get(spool.id));
+}
+function updateLabelFilterOptions() {
+  for(const [id,field,key] of [['label-material-filter','material','ui.alle_materialer_4b987d'],['label-manufacturer-filter','manufacturer','labels.all_manufacturers']]) {
+    const select=$('#'+id),current=select.value;
+    const values=[...new Set([...galleryLabels.values()].map(entry=>entry.spool[field]).filter(Boolean))].sort();
+    select.innerHTML=`<option value="">${th(key)}</option>`+values.map(value=>`<option value="${esc(value)}">${esc(value)}</option>`).join('');
+    select.value=values.includes(current)?current:'';
+  }
+}
+function syncLabelEntries() {
+  const spools=[...inventoryState.spools].sort(compareLocations);
+  if(spools.length===galleryLabels.size && spools.every(spool=>galleryLabels.get(spool.id)?.spool===spool))return false;
+  const previous=galleryLabels;
+  galleryLabels=new Map(spools.map(spool=>{
+    const old=previous.get(spool.id);
+    if(old?.spool===spool)return [spool.id,old];
+    const options=galleryDefaults(spool,null),dirty=new Set(old?.dirty||[]);
+    if(old)for(const key of Object.keys(options))if(dirty.has(key) || ['layout','size','format'].includes(key))options[key]=old.options[key];
+    return [spool.id,{spool,options,dirty,label:null,profile:null,profileState:'loading',profilePromise:null,plate:0,dryingMethod:0}];
+  }));
+  ++galleryVersion;++nativeListVersion;updateLabelFilterOptions();return true;
+}
+async function fetchLabelProfile(spool) {
+  if(!isBambuBrand(spool.manufacturer))return null;
+  const params=new URLSearchParams({manufacturer:spool.manufacturer,material:spool.material}),key=params.toString();
+  if(!labelProfileCache.has(key))labelProfileCache.set(key,(async()=>{
+    if(labelProfileActive>=4)await new Promise(resolve=>labelProfileWaiters.push(resolve));else labelProfileActive++;
+    try {return await request('/api/material-profiles?'+params);}
+    catch(error){labelProfileCache.delete(key);throw error;}
+    finally {const next=labelProfileWaiters.shift();if(next)next();else labelProfileActive--;}
+  })());
+  return labelProfileCache.get(key);
+}
+function ensureLabelProfile(entry) {
+  if(entry.profilePromise)return entry.profilePromise;
+  entry.profilePromise=(async()=>{
+    try {
+      entry.profile=await fetchLabelProfile(entry.spool);entry.profileState=entry.profile?'found':'missing';
+      const defaults=galleryDefaults(entry.spool,entry.profile);
+      for(const field of ['nozzle','bed','flow','drying'])if(!entry.dirty.has(field))entry.options[field]=defaults[field];
+      if(entry.profile)entry.plate=Math.max(0,entry.profile.bed_temperatures.findIndex(plate=>plate.plate==='Textured PEI Plate'));
+    } catch {entry.profileState='failed';}
+  })();
+  return entry.profilePromise;
+}
+function labelProfileStatus(entry) {
+  return entry.profileState==='failed'?t('labels.profile_error'):entry.profileState==='found'?t('labels.profile_found',{material:entry.profile.material}):entry.profileState==='missing'?t('labels.no_profile'):t('labels.loading_profile');
+}
+function galleryGuideControls(entry) {
+  const profile=entry.profile;if(!profile)return '';
+  const select=(field,key,items,current)=>`<label>${th(key)}<select data-gallery-field="${field}">${items.map(([value,label])=>`<option value="${value}"${Number(current)===value?' selected':''}>${esc(label)}</option>`).join('')}</select></label>`;
+  const plate=select('plate','labels.guide_plate',profile.bed_temperatures.map((plate,index)=>[index,plate.plate+' · '+profileRange(plate.temperature_c,'°C')]),entry.plate);
+  const drying=select('dryingMethod','labels.guide_drying',profile.drying_conditions.map((condition,index)=>[index,t(condition.method==='blast_oven'?'labels.drying_method_blast_oven':'labels.drying_method_printer_heatbed')]),entry.dryingMethod);
+  const condition=profile.drying_conditions[entry.dryingMethod],notes=[];
+  if(profile.flow_ratio==null)notes.push(t('labels.flow_not_in_guide'));
+  if(condition?.method==='printer_heatbed')notes.push(t('labels.heatbed_drying_note'));
+  if(['PPS-CF','PPA-CF'].includes(profile.material) && condition?.method==='blast_oven')notes.push(t('labels.high_temp_drying_note'));
+  if(profile.material==='PPS-CF' && condition?.method==='printer_heatbed')notes.push(t('labels.less_effective_drying_note'));
+  return `<div class="thermal-controls">${plate}${drying}</div><p>${notes.map(esc).join(' ')}</p><div class="thermal-guide-actions"><button type="button" data-gallery-action="guide">${th('labels.use_guide')}</button><a href="${esc(productLink(profile.source_url))}" target="_blank" rel="noopener noreferrer">${th('labels.guide_source')}</a></div>`;
+}
 function galleryCard(entry) {
   const {spool,options}=entry;
   const fieldKeys={nozzle:'labels.nozzle',bed:'labels.bed',flow:'labels.flow',drying:'labels.drying'};
@@ -177,91 +138,144 @@ function galleryCard(entry) {
   const select=(field,key,items)=>`<label>${th(key)}<select data-gallery-field="${field}">${items.map(([value,text])=>`<option value="${value}"${options[field]===value?' selected':''}>${esc(text)}</option>`).join('')}</select></label>`;
   return `<article class="label-gallery-card" data-gallery-id="${spool.id}">
     <h3>${esc(spool.material)} · ${esc(spool.color || spool.name)}</h3>
-    <p>${th('ui.spole_c5f792',{p4:spool.id,p5:esc(spool.location || t('ui.ingen_placering_96a4dd'))})}</p>
-    <div class="gallery-preview"></div>
-    <p class="gallery-status" role="status">${th('labels.loading_profile')}</p>
-    <div class="thermal-controls">
+    <p>${esc(spool.name)} · ${esc(spool.manufacturer)}</p><p>${th('ui.spole_c5f792',{p4:spool.id,p5:esc(spool.location || t('ui.ingen_placering_96a4dd'))})}${spool.archived?' · '+th('labels.archived'):''}</p>
+    <div class="gallery-preview"></div><p class="gallery-status" role="status">${esc(labelProfileStatus(entry))}</p>
+    <div class="gallery-guide">${galleryGuideControls(entry)}</div><div class="thermal-controls">
       ${select('layout','labels.layout',[['extended',t('labels.extended')],['compact',t('labels.compact')]])}
       ${select('size','labels.size',Object.keys(LABEL_SIZES).map(size=>[size,size.replace('x',' × ')+' mm']))}
       ${['nozzle','bed','flow','drying'].map(input).join('')}
       ${select('format','labels.filetype',[['png',t('labels.png')],['svg',t('labels.svg')]])}
-    </div>
-    <p class="gallery-error" role="alert"></p><p class="m220-status" data-m220-status role="status" hidden></p>
+    </div><p class="gallery-error" role="alert"></p>
     <div class="modal-actions"><button type="button" data-gallery-action="download">${th('labels.download')}</button>
-    <button type="button" data-m220-print="${spool.id}" hidden>${th('m220.print')}</button><button type="button" class="primary" data-gallery-action="print">${th('ui.print_label_a1aa7b')}</button></div>
+    <button type="button" class="primary" data-gallery-action="print">${th('ui.print_label_a1aa7b')}</button></div>
   </article>`;
 }
 function refreshGalleryCard(card,entry) {
-  const error=card.querySelector('.gallery-error');
-  error.textContent='';
-  entry.label=null;
-  try {
-    entry.label=thermalLabel(entry.spool,spoolLink(entry.spool),entry.options);
-    card.querySelector('.gallery-preview').innerHTML=entry.label.svg;
-  } catch(problem) {
-    card.querySelector('.gallery-preview').innerHTML='';
-    error.textContent=problem.message;
-  }
-  for(const button of card.querySelectorAll('[data-gallery-action]'))button.disabled=!entry.label;
+  if(!card)return;
+  const error=card.querySelector('.gallery-error');error.textContent='';entry.label=null;
+  try {entry.label=thermalLabel(entry.spool,spoolLink(entry.spool),entry.options);card.querySelector('.gallery-preview').innerHTML=entry.label.svg;}
+  catch(problem){card.querySelector('.gallery-preview').innerHTML='';error.textContent=problem.message;}
+  for(const button of card.querySelectorAll('[data-gallery-action]'))if(button.dataset?.galleryAction!=='guide')button.disabled=!entry.label;
 }
-async function showLabelGallery() {
-  const version=++galleryVersion;
-  const profiles=new Map();
-  galleryLabels=new Map([...inventoryState.spools].sort(compareLocations).map(spool=>[spool.id,{
-    spool,options:galleryDefaults(spool,null),dirty:new Set(),label:null,
-  }]));
-  const gallery=$('#label-gallery');
-  gallery.innerHTML=[...galleryLabels.values()].map(galleryCard).join('');
-  $('#label-gallery-status').textContent=galleryLabels.size ? t('labels.gallery_help') : t('ui.ingen_spoler_i_arkivet_endnu_d9f267');
-  await Promise.all([...galleryLabels.values()].map(async entry=>{
-    const card=gallery.querySelector(`[data-gallery-id="${entry.spool.id}"]`);
-    refreshGalleryCard(card,entry);
-    let profile=null,failed=false;
-    try {
-      if(/^bambu(?:\s*lab)?$/i.test(String(entry.spool.manufacturer || '').trim())) {
-        const params=new URLSearchParams({manufacturer:entry.spool.manufacturer,material:entry.spool.material});
-        const key=params.toString();
-        if(!profiles.has(key))profiles.set(key,request('/api/material-profiles?'+params));
-        profile=await profiles.get(key);
-      }
-    } catch { failed=true; }
-    if(version!==galleryVersion)return;
-    const defaults=galleryDefaults(entry.spool,profile);
-    for(const field of ['nozzle','bed','flow','drying'])if(!entry.dirty.has(field)) {
-      entry.options[field]=defaults[field];
-      card.querySelector(`[data-gallery-field="${field}"]`).value=defaults[field];
-    }
-    card.querySelector('.gallery-status').textContent=failed ? t('labels.profile_error') : profile ? t('labels.profile_found',{material:profile.material}) : t('labels.no_profile');
-    refreshGalleryCard(card,entry);
+function labelPagination(prefix,page) {
+  $('#'+prefix+'-count').textContent=t('labels.page_summary',{count:page.total,total:galleryLabels.size,page:page.index+1,pages:page.pages});
+  $('#'+prefix+'-previous').disabled=page.index===0;
+  $('#'+prefix+'-next').disabled=page.index+1>=page.pages;
+}
+async function renderLabelGallery() {
+  const version=++galleryVersion,gallery=$('#label-gallery'),page=labelListPage(filteredLabelEntries(),galleryPage);galleryPage=page.index;
+  labelPagination('label-gallery',page);
+  gallery.innerHTML=page.records.length?page.records.map(galleryCard).join(''):`<p>${th('labels.no_matches')}</p>`;
+  await Promise.all(page.records.map(async entry=>{
+    const card=gallery.querySelector(`[data-gallery-id="${entry.spool.id}"]`);refreshGalleryCard(card,entry);
+    await ensureLabelProfile(entry);
+    if(version!==galleryVersion || gallery.hidden)return;
+    for(const field of ['nozzle','bed','flow','drying'])card.querySelector(`[data-gallery-field="${field}"]`).value=entry.options[field];
+    card.querySelector('.gallery-status').textContent=labelProfileStatus(entry);
+    card.querySelector('.gallery-guide').innerHTML=galleryGuideControls(entry);refreshGalleryCard(card,entry);
   }));
 }
+async function showLabelGallery() {syncLabelEntries();return renderLabelGallery();}
+function updateGalleryGuide(entry) {
+  const plate=entry.profile?.bed_temperatures[entry.plate],drying=entry.profile?.drying_conditions[entry.dryingMethod];
+  if(plate){entry.options.bed=profileRange(plate.temperature_c,'°C');entry.dirty.add('bed');}
+  if(drying){entry.options.drying=profileRange(drying.temperature_c,'°C')+'/'+profileRange(drying.hours,'h');entry.dirty.add('drying');}
+}
 function editGalleryLabel(event) {
-  const field=event.target.dataset.galleryField;
-  const card=event.target.closest('[data-gallery-id]');
-  const entry=card && galleryLabels.get(Number(card.dataset.galleryId));
-  if(!entry || !Object.hasOwn(entry.options,field))return;
-  entry.options[field]=event.target.value;
-  entry.dirty.add(field);
+  const field=event.target.dataset.galleryField,card=event.target.closest('[data-gallery-id]'),entry=card && galleryLabels.get(Number(card.dataset.galleryId));
+  if(!entry)return;
+  if(['plate','dryingMethod'].includes(field)) {
+    entry[field]=Number(event.target.value);updateGalleryGuide(entry);
+    for(const key of ['bed','drying'])card.querySelector(`[data-gallery-field="${key}"]`).value=entry.options[key];
+    card.querySelector('.gallery-guide').innerHTML=galleryGuideControls(entry);
+  } else {
+    if(!Object.hasOwn(entry.options,field))return;
+    entry.options[field]=event.target.value;entry.dirty.add(field);
+  }
   refreshGalleryCard(card,entry);
 }
+function clearSingleLabelPrint() {
+  $('#single-label-print').dataset.printActive='false';$('#single-label-print').innerHTML='';$('#label-print-page-style').textContent='';
+}
 async function useGalleryLabel(event) {
-  const button=event.target.closest('[data-gallery-action]');
-  const card=button?.closest('[data-gallery-id]');
-  const entry=card && galleryLabels.get(Number(card.dataset.galleryId));
-  if(!entry?.label || button.disabled)return;
-  if(button.dataset.galleryAction==='print') {
-    openLabel(entry.spool.id);
-    for(const field of ['layout','size','nozzle','bed','flow','drying'])$('#thermal-'+field).value=entry.options[field];
-    dirtyLabelFields=new Set(['nozzle','bed','flow','drying']);
-    refreshThermalLabel();
-    window.print();
-  } else {
-    button.disabled=true;
-    card.querySelector('.gallery-error').textContent='';
-    try { await saveLabelImage(entry.spool,entry.label,entry.options,entry.options.format); }
-    catch { card.querySelector('.gallery-error').textContent=t('labels.download_error'); }
-    finally { button.disabled=!entry.label; }
+  const button=event.target.closest('[data-gallery-action]'),card=button?.closest('[data-gallery-id]'),entry=card && galleryLabels.get(Number(card.dataset.galleryId));
+  if(!entry || button.disabled)return;
+  if(button.dataset.galleryAction==='guide') {
+    const defaults=galleryDefaults(entry.spool,entry.profile);
+    for(const field of ['nozzle','bed','flow','drying']){entry.options[field]=defaults[field];entry.dirty.add(field);}
+    updateGalleryGuide(entry);
+    for(const field of ['nozzle','bed','flow','drying'])card.querySelector(`[data-gallery-field="${field}"]`).value=entry.options[field];
+    refreshGalleryCard(card,entry);return;
   }
+  if(!entry.label)return;
+  if(button.dataset.galleryAction==='print') {
+    $('#selected-labels-pages').dataset.printActive='false';
+    $('#single-label-print').innerHTML=entry.label.svg;$('#single-label-print').dataset.printActive='true';
+    $('#label-print-page-style').textContent=`@media print { @page thermal-label { size: ${entry.label.mmWidth}mm ${entry.label.mmHeight}mm; margin: 0; } }`;
+    try {window.print();}catch {clearSingleLabelPrint();card.querySelector('.gallery-error').textContent=t('labels.print_error');}
+  } else {
+    button.disabled=true;card.querySelector('.gallery-error').textContent='';
+    try {await saveLabelImage(entry.spool,entry.label,entry.options,entry.options.format);}
+    catch {card.querySelector('.gallery-error').textContent=t('labels.download_error');}
+    finally {button.disabled=!entry.label;}
+  }
+}
+function nativeSpoolCard(entry) {
+  const spool=entry.spool;
+  const color=/^#[0-9a-f]{6}$/i.test(spool.color_hex)?spool.color_hex:'#bd93f9';
+  const weight=Math.max(0,Number(spool.weight)||0),remaining=Math.max(0,Math.min(weight,Number(spool.remaining)||0));
+  const percent=weight?Math.round(remaining/weight*100):0;
+  const location=spool.active_slot || spool.location || t('ui.ingen_placering_96a4dd');
+  const printIcon='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9V3h12v6M6 17H3V9h18v8h-3M6 14h12v7H6zM17 12h1"/></svg>';
+  return `<article class="native-spool-card" data-native-spool="${spool.id}" style="--spool:${color};--spool-glow:${color}24">
+    <div class="native-spool-art"><div class="native-spool-labels"><span class="native-spool-type">${esc(spool.material)}</span><span class="native-spool-id">#${esc(spool.id)}</span></div>
+      <div class="native-spool-illustration" aria-hidden="true"><div class="spool${spool.transparency==='transparent'?' transparent-spool':''}"></div></div></div>
+    <div class="manufacturer">${esc(spool.manufacturer)}</div><h3>${esc(spool.name)}</h3>
+    <div class="native-spool-color"><span class="swatch" style="background:${color}" aria-hidden="true"></span><span>${esc(spool.color || (spool.transparency==='transparent'?t('ui.klar_79aac7'):t('ui.ingen_farve_angivet_930385')))}</span>${spool.transparency==='transparent'?`<span class="native-spool-transparent">${th('ui.transparent_c8a1fe')}</span>`:''}</div>
+    ${spool.product_id?`<p class="native-spool-product">${th('ui.produkt_id_ed128a',{p0:esc(spool.product_id)})}</p>`:''}
+    <div class="native-spool-location" title="${esc(location)}"><span aria-hidden="true">⌖</span><span>${esc(location)}</span></div>
+    ${spool.archived?`<span class="native-spool-archived">${th('labels.archived')}</span>`:''}
+    <div class="native-spool-footer"><div class="native-spool-weight"><span><b>${number(remaining)} g</b><small>${th('ui.g_1b1ff7',{p17:number(weight)})}</small></span><span>${th('ui.tilbage_312c7e',{p19:percent})}</span></div>
+    <div class="bar" aria-hidden="true"><span style="width:${percent}%;${percent<20?'background:var(--orange,#ffb86c)':''}"></span></div>
+    <p data-native-spool-status role="status"></p><button type="button" class="primary" data-open-native="${spool.id}">${printIcon}<span>${th('labels.native_edit_print')}</span></button></div></article>`;
+}
+function renderNativeLabelList() {
+  ++nativeListVersion;const page=labelListPage(filteredLabelEntries(),nativePage);nativePage=page.index;
+  labelPagination('native-labels',page);
+  $('#native-label-list').innerHTML=page.records.length?page.records.map(nativeSpoolCard).join(''):`<p>${th('labels.no_matches')}</p>`;
+}
+async function openNativeSpool(event) {
+  const button=event.target.closest('[data-open-native]');if(!button || button.disabled)return;
+  const entry=galleryLabels.get(Number(button.dataset.openNative));if(!entry)return;
+  const version=nativeListVersion,attempt=++nativeOpenVersion,status=button.closest('[data-native-spool]').querySelector('[data-native-spool-status]');
+  button.disabled=true;status.textContent=t('labels.loading_profile');
+  try {
+    await ensureLabelProfile(entry);
+    if(attempt!==nativeOpenVersion || version!==nativeListVersion || $('#native-labels-panel').hidden || $('#qr-labels-view').hidden)return;
+    status.textContent=labelProfileStatus(entry);
+    const {nozzle,bed,flow,drying}=entry.options;
+    return await openNativeLabelPrinter(entry.spool,spoolLink(entry.spool),{nozzle,bed,flow,drying});
+  } finally {button.disabled=false;status.textContent=labelProfileStatus(entry);}
+}
+function updateLabelMatchCount() {$('#label-filter-summary').textContent=t('labels.filter_summary',{count:filteredLabelEntries().length,total:galleryLabels.size});}
+async function refreshLabels() {
+  if($('#qr-labels-view').hidden!==false)return;
+  const changed=syncLabelEntries();updateLabelMatchCount();
+  await refreshLabelTemplateSpools();
+  if(!changed)return;
+  const pending=[];
+  if($('#label-gallery').hidden===false)pending.push(renderLabelGallery());
+  if($('#native-labels-panel').hidden===false)renderNativeLabelList();
+  if($('#all-labels-panel').hidden===false) {
+    const selected=new Set(selectedLabelIds);labelRecords=[...galleryLabels.values()].map(entry=>entry.spool);
+    selectedLabelIds=new Set(labelRecords.filter(spool=>selected.has(spool.id)).map(spool=>spool.id));renderLabelChoices();
+  }
+  await Promise.all(pending);
+}
+async function applyLabelFilters() {
+  syncLabelEntries();galleryPage=0;nativePage=0;updateLabelMatchCount();
+  if($('#native-labels-panel').hidden===false)renderNativeLabelList();
+  if($('#label-gallery').hidden===false)await renderLabelGallery();
 }
 function labelPages(records, selectable=false) {
   const pages = [];
@@ -324,87 +338,46 @@ function toggleAllLabels() {
   setLabelToggle($('#all-labels-open'),expanded,'labels.a4_generate','labels.a4_hide');
 }
 async function toggleLabelGallery() {
-  const gallery=$('#label-gallery');
-  const expanded=gallery.hidden!==false;
-  gallery.hidden=!expanded;
+  const gallery=$('#label-gallery'),expanded=gallery.hidden!==false;
+  gallery.hidden=!expanded;$('#label-gallery-pagination').hidden=!expanded;
   setLabelToggle($('#label-gallery-open'),expanded,'labels.gallery_generate','labels.gallery_hide');
-  if(expanded) {
-    const spools=inventoryState.spools;
-    if(!galleryLabels.size || spools.length!==galleryLabels.size || spools.some(spool=>galleryLabels.get(spool.id)?.spool!==spool))await showLabelGallery();
-  }
+  if(expanded){syncLabelEntries();updateLabelMatchCount();await renderLabelGallery();}else ++galleryVersion;
+}
+function toggleNativeLabels() {
+  const panel=$('#native-labels-panel'),expanded=panel.hidden!==false;panel.hidden=!expanded;
+  setLabelToggle($('#native-labels-open'),expanded,'labels.native_show','labels.native_hide');
+  if(expanded){syncLabelEntries();updateLabelMatchCount();renderNativeLabelList();}else ++nativeListVersion;
 }
 function prepareLabelPrinting() {
-  $('#selected-labels-pages').dataset.printActive = String(!$('#qr-labels-view').hidden && !$('#all-labels-panel').hidden && !$('#label-dialog').open);
+  $('#selected-labels-pages').dataset.printActive=String(!$('#qr-labels-view').hidden && !$('#all-labels-panel').hidden && $('#single-label-print').dataset.printActive!=='true' && !$('#native-label-dialog').open);
 }
-function openLabel(id) {
-  const spool = inventoryState.spools.find(s => s.id === id);
-  if (!spool) return;
-  const version=++labelLookupVersion;
-  currentLabelSpool=spool;
-  currentLabelProfile=null;
-  dirtyLabelFields=new Set();
-  $('#thermal-guide-controls').hidden=true;
-  $('#thermal-flow-note').textContent='';
-  $('#thermal-drying-note').textContent='';
-  $('#thermal-nozzle').value=Number(spool.nozzle_temp)>0?`${spool.nozzle_temp}°C`:'';
-  $('#thermal-bed').value=Number(spool.bed_temp)>0?`${spool.bed_temp}°C`:'';
-  $('#thermal-flow').value='';
-  $('#thermal-drying').value='';
-  const link = spoolLink(spool);
-  const details = labelDetails(spool);
-  $('#label-material').innerHTML = labelMaterial(spool);
-  $('#label-title').textContent = details.title;
-  $('#label-info').textContent = details.info;
-  $('#label-id').textContent = details.productId;
-  $('#label-link').value = link;
-  $('#label-error').textContent = '';
-  try { $('#label-qr').innerHTML = qrSvg(link); }
-  catch { $('#label-error').textContent = t("ui.qr_koden_kunne_ikke_genereres_brug_det_direkte_l_20f00b"); $('#label-qr').innerHTML = ''; }
-  refreshThermalLabel();
-  $('#label-dialog').showModal();
-  return loadLabelProfile(spool,version);
-}
-
 function initLabels() {
-  initM220Printing({getDialogLabel:()=>currentThermalLabel,getGalleryLabel:id=>galleryLabels.get(id)?.label});
+  initLabelTemplateSettings({getProfileForSpool:async spool=>{
+    syncLabelEntries();const entry=galleryLabels.get(spool.id);await ensureLabelProfile(entry);
+    const {nozzle,bed,flow,drying}=entry.options;return {nozzle,bed,flow,drying};
+  }});
   $('#label-gallery-open').onclick=toggleLabelGallery;
-  $('#label-gallery').oninput=editGalleryLabel;
-  $('#label-gallery').onchange=editGalleryLabel;
-  $('#label-gallery').onclick=useGalleryLabel;
-  $('#thermal-layout').onchange=refreshThermalLabel;
-  $('#thermal-size').onchange=refreshThermalLabel;
-  for(const field of ['nozzle','bed','flow','drying'])$('#thermal-'+field).oninput=()=>{dirtyLabelFields.add(field);refreshThermalLabel();};
-  $('#thermal-plate').onchange=()=>{applyProfileBed(true);refreshThermalLabel();};
-  $('#thermal-drying-method').onchange=()=>{applyProfileDrying(true);refreshThermalLabel();};
-  $('#thermal-use-guide').onclick=()=>{
-    if(!currentLabelProfile)return;
-    applyProfileField('nozzle',profileRange(currentLabelProfile.nozzle_temperature_c,'°C'),true);
-    applyProfileBed(true);applyProfileDrying(true);
-    if(currentLabelProfile.flow_ratio!=null)applyProfileField('flow',String(currentLabelProfile.flow_ratio),true);
-    refreshThermalLabel();
+  $('#label-gallery').oninput=editGalleryLabel;$('#label-gallery').onchange=editGalleryLabel;$('#label-gallery').onclick=useGalleryLabel;
+  $('#native-labels-open').onclick=toggleNativeLabels;$('#native-label-list').onclick=openNativeSpool;
+  for(const id of ['label-search','label-material-filter','label-manufacturer-filter'])$('#'+id).oninput=applyLabelFilters;
+  $('#label-filters-reset').onclick=()=>{
+    for(const id of ['label-search','label-material-filter','label-manufacturer-filter'])$('#'+id).value='';
+    return applyLabelFilters();
   };
-  $('#thermal-download').onclick=downloadThermalLabel;
-  $('#all-labels-pages').onchange = event => {
-    const checkbox = event.target.closest('[data-label-spool]');
-    if (!checkbox) return;
-    const id = Number(checkbox.dataset.labelSpool);
-    if (!labelRecords.some(spool => spool.id === id)) return;
-    if (checkbox.checked) selectedLabelIds.add(id); else selectedLabelIds.delete(id);
-    updateLabelSelection();
+  $('#label-gallery-previous').onclick=()=>{galleryPage--;return renderLabelGallery();};
+  $('#label-gallery-next').onclick=()=>{galleryPage++;return renderLabelGallery();};
+  $('#native-labels-previous').onclick=()=>{nativePage--;renderNativeLabelList();};
+  $('#native-labels-next').onclick=()=>{nativePage++;renderNativeLabelList();};
+  $('#all-labels-pages').onchange=event=>{
+    const checkbox=event.target.closest('[data-label-spool]');if(!checkbox)return;
+    const id=Number(checkbox.dataset.labelSpool);if(!labelRecords.some(spool=>spool.id===id))return;
+    if(checkbox.checked)selectedLabelIds.add(id);else selectedLabelIds.delete(id);updateLabelSelection();
   };
-  $('#all-labels-select-all').onclick = () => { selectedLabelIds = new Set(labelRecords.map(spool => spool.id)); renderLabelChoices(); };
-  $('#all-labels-deselect-all').onclick = () => { selectedLabelIds.clear(); renderLabelChoices(); };
-  $('#all-labels-open').onclick = toggleAllLabels;
+  $('#all-labels-select-all').onclick=()=>{selectedLabelIds=new Set(labelRecords.map(spool=>spool.id));renderLabelChoices();};
+  $('#all-labels-deselect-all').onclick=()=>{selectedLabelIds.clear();renderLabelChoices();};
+  $('#all-labels-open').onclick=toggleAllLabels;
   window.addEventListener('beforeprint',prepareLabelPrinting);
-  window.addEventListener('afterprint',() => { $('#selected-labels-pages').dataset.printActive = 'false'; });
-  $('#all-labels-print').onclick = () => {
-    if ($('#all-labels-print').disabled) return;
-    prepareLabelPrinting();
-    window.print();
-  };
-  $('#label-close').onclick = () => $('#label-dialog').close();
-  $('#label-copy').onclick = async () => { try { await navigator.clipboard.writeText($('#label-link').value); $('#label-error').textContent = t("ui.link_kopieret_69dfad"); } catch { $('#label-link').select(); $('#label-error').textContent = t("ui.marker_og_kopier_linket_manuelt_5b1e3d"); } };
-  $('#label-print').onclick = () => window.print();
+  window.addEventListener('afterprint',()=>{$('#selected-labels-pages').dataset.printActive='false';clearSingleLabelPrint();});
+  $('#all-labels-print').onclick=()=>{if($('#all-labels-print').disabled)return;clearSingleLabelPrint();prepareLabelPrinting();window.print();};
 }
-
-export { initLabels, openLabel };
+export { initLabels, refreshLabels };

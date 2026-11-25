@@ -2,6 +2,7 @@ import { esc } from './core.js';
 import { t } from './i18n.js';
 import qrcodegen from './vendor/qrcodegen.js';
 import { bambuLabLogo } from './vendor/bambu-lab-logo.js';
+import { extendedLabelGeometry, qrArtwork, LOGO_ATTRIBUTION, isBambuBrand } from './label-style.js';
 
 // All layout coordinates are printer dots, with QR modules on an integer grid.
 const LABEL_SIZES = Object.freeze({
@@ -27,7 +28,7 @@ function thermalLabel(spool,link,{size='60x40',layout='extended',nozzle='',bed='
   const color=[spool.color,spool.product_id ? `(${spool.product_id})` : ''].filter(Boolean).join(' ') || '—';
   const hex=/^#[0-9a-f]{6}$/i.test(spool.color_hex) ? spool.color_hex.toUpperCase() : '—';
   const brand=String(spool.manufacturer || '').trim();
-  const isBambu=/^bambu\s*lab$/i.test(brand) || /^bambu$/i.test(brand);
+  const isBambu=isBambuBrand(brand);
   let content=isBambu
     ? `<svg x="${margin}" y="${headerY}" width="${contentWidth}" height="${headerHeight}" viewBox="8 22 560 66">${bambuLabLogo.slice(bambuLabLogo.indexOf('>')+1,bambuLabLogo.lastIndexOf('</svg>'))}</svg>`
     : labelText(brand,margin,headerY+headerHeight*.85,contentWidth,headerHeight*.8,{bold:true});
@@ -42,19 +43,13 @@ function thermalLabel(spool,link,{size='60x40',layout='extended',nozzle='',bed='
     content+=labelText(color,x,bodyY+font*2+12,w,font*.85);
     content+=labelText(hex,x,bodyY+qrBox-4,w,font*.75);
   } else {
-    const font=Math.min(32,Math.max(19,contentWidth*.065));
-    const hexWidth=Math.ceil(font*.55*7*.65)+8, barWidth=contentWidth-hexWidth-gap;
+    const {font,hexWidth,barWidth,lowerY,infoWidth,infoFont,qrX:extendedQrX,qrY:extendedQrY,qrBox:extendedQrBox}=extendedLabelGeometry(width,height);
     content+=`<rect x="${margin}" y="${bodyY}" width="${barWidth}" height="${font+6}" fill="black"/>`;
     content+=labelText(material,margin+4,bodyY+font,barWidth-8,font,{bold:true,fill:'white'});
     content+=labelText(hex,margin+barWidth+gap,bodyY+font-2,hexWidth,font*.55);
     // Move the color into the information column, freeing vertical space for QR.
-    const lowerY=bodyY+font+10;
-    const lowerHeight=height-margin-lowerY;
-    qrBox=Math.floor(Math.min(contentWidth*.56,lowerHeight));
-    qrX=width-margin-qrBox; qrY=height-margin-qrBox;
-    const infoWidth=qrX-margin-gap;
+    qrBox=extendedQrBox;qrX=extendedQrX;qrY=extendedQrY;
     content+=labelText(color,margin,lowerY+font*.85,infoWidth,font*.75);
-    const infoFont=Math.min(22,Math.max(11,infoWidth*.075),lowerHeight/5.1);
     const rows=[
       [t('labels.nozzle'),nozzle], [t('labels.bed'),bed],
       [t('labels.flow'),flow], [t('labels.drying'),drying],
@@ -74,13 +69,13 @@ function thermalLabel(spool,link,{size='60x40',layout='extended',nozzle='',bed='
   const paths=[];
   // A circular top-left finder echoes the reference style. Keep every other
   // encoded module and the full four-module quiet zone untouched.
-  for(let row=0;row<qr.size;row++)for(let col=0;col<qr.size;col++)if(qr.getModule(col,row) && !(row<7 && col<7)) {
-    paths.push(`M${x+(col+4)*moduleDots},${y+(row+4)*moduleDots}h${moduleDots}v${moduleDots}h-${moduleDots}z`);
+  for(const module of qrArtwork(qr,true).modules) {
+    paths.push(`M${x+(module.x+4)*moduleDots},${y+(module.y+4)*moduleDots}h${moduleDots}v${moduleDots}h-${moduleDots}z`);
   }
   content+=`<path fill="black" shape-rendering="crispEdges" d="${paths.join('')}"/>`;
   const eyeX=x+7.5*moduleDots, eyeY=y+7.5*moduleDots;
   content+=`<g data-qr-eye="round"><circle cx="${eyeX}" cy="${eyeY}" r="${3.5*moduleDots}" fill="black"/><circle cx="${eyeX}" cy="${eyeY}" r="${2.5*moduleDots}" fill="white"/><circle cx="${eyeX}" cy="${eyeY}" r="${1.5*moduleDots}" fill="black"/></g>`;
-  const attribution=isBambu ? 'Logo: Lwde, CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:BambuLab_logo.svg; monochrome horizontal adaptation; https://creativecommons.org/licenses/by-sa/4.0/' : '';
+  const attribution=isBambu ? LOGO_ATTRIBUTION : '';
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${mmWidth}mm" height="${mmHeight}mm" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(t('labels.preview'))}" font-family="Arial, Helvetica, sans-serif"><title>${esc(spool.name || material)}</title><metadata>${esc(attribution)}</metadata><rect width="${width}" height="${height}" fill="white"/>${content}</svg>`;
   return {svg,width,height,mmWidth,mmHeight,moduleDots,qrWidth};
 }

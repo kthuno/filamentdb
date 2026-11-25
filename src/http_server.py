@@ -14,6 +14,7 @@ from .file_archive import delete_file, update_file, upload_file
 from .http_reads import ReadRoutes
 from .i18n import localize_response
 from .knowledge_ai import AIError, generate_suggestion, source_context
+from .label_templates import MAX_TEMPLATE, TemplateConflict, mutate_template
 from .locations import assign_location_content, save_location, sync_ams_slots
 from .planning import save_wish
 from .prints import register_print, undo_print
@@ -53,6 +54,13 @@ class Handler(ReadRoutes, BaseHTTPRequestHandler):
         if len(parts) < 2 or parts[0] != "api":
             return None
         resource = parts[1]
+        if (
+            resource == "label-templates"
+            and len(parts) == 3
+            and parts[2] in {"40x30", "60x40", "70x80"}
+            and self.command in {"PUT", "DELETE"}
+        ):
+            return "label_templates", parts[2]
         if (
             len(parts) == 4
             and resource == "prints"
@@ -233,6 +241,8 @@ class Handler(ReadRoutes, BaseHTTPRequestHandler):
             self.respond(status, {"ok": True})
         except AIError as error:
             self.respond(error.status, {"error": str(error)})
+        except TemplateConflict as error:
+            self.respond(409, {"error": str(error)})
         except sqlite3.IntegrityError as error:
             if "locations.name" in str(error):
                 message = "Der findes allerede en placering med det navn."
@@ -262,6 +272,11 @@ class Handler(ReadRoutes, BaseHTTPRequestHandler):
 
     def apply_mutation(self, conn, resource, identity):
         """Dispatch one write within the transaction, returning its success status."""
+        if resource == "label_templates":
+            mutate_template(
+                conn, self.command, identity, self.read_json(MAX_TEMPLATE * 2)
+            )
+            return 200
         if resource == "material_types":
             from .materials import mutate_material
 

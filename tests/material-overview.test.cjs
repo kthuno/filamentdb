@@ -845,7 +845,7 @@ test('QR label selection prints only checked rolls and repacks selected labels',
 test('inline QR overview prepares only its selected print content and respects single-label printing', () => {
   vm.runInContext('inventoryState.spools = bulkRecords; showAllLabels()',context);
   nodes.get('#qr-labels-view').hidden = false;
-  context.document.querySelector('#label-dialog').open = false;
+  context.document.querySelector('#native-label-dialog').open = false;
   assert.equal(nodes.get('#all-labels-panel').hidden,false);
   let prints = 0;
   context.window.print = () => {
@@ -855,10 +855,10 @@ test('inline QR overview prepares only its selected print content and respects s
   };
   nodes.get('#all-labels-print').onclick();
   assert.equal(prints,1);
-  nodes.get('#label-dialog').open = true;
+  nodes.get('#native-label-dialog').open = true;
   vm.runInContext('prepareLabelPrinting()',context);
   assert.equal(nodes.get('#selected-labels-pages').dataset.printActive,'false');
-  nodes.get('#label-dialog').open = false;
+  nodes.get('#native-label-dialog').open = false;
   nodes.get('#qr-labels-view').hidden = true;
   vm.runInContext('prepareLabelPrinting()',context);
   assert.equal(nodes.get('#selected-labels-pages').dataset.printActive,'false');
@@ -933,7 +933,7 @@ test('A4 toggle collapses and reopens without losing checkbox selection', () => 
 });
 
 
-test('Administration stays below primary navigation and owns the printer settings', () => {
+test('Administration stays below primary navigation without printer management', () => {
   const html=fs.readFileSync('static/index.html','utf8');
   const mainNav=html.match(/<nav class="main-nav"[^>]*>([\s\S]*?)<\/nav>/)[1];
   assert.ok(!mainNav.includes('id="nav-admin"'));
@@ -944,8 +944,8 @@ test('Administration stays below primary navigation and owns the printer setting
   const qr=html.slice(html.indexOf('<section id="qr-labels-view"'),html.indexOf('<section id="admin-view"'));
   const admin=html.slice(html.indexOf('<section id="admin-view"'),html.indexOf('<footer>'));
   assert.ok(!qr.includes('id="m220-panel"'));
-  for(const id of ['m220-panel','m220-enabled','m220-availability','m220-connect','m220-density','m220-feed','m220-chunk'])assert.ok(admin.includes('id="'+id+'"'));
-  assert.match(qr,/href="#admin" data-i18n-text="0:admin.printer_settings"/);
+  for(const id of ['m220-panel','m220-enabled','m220-availability','m220-connect','m220-density','m220-feed','m220-chunk'])assert.ok(!admin.includes('id="'+id+'"'));
+  assert.ok(!qr.includes('admin.printer_settings'));
 });
 
 test('Administration owns language, build plate management and category editing without moving daily selectors',()=>{

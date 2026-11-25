@@ -3,7 +3,6 @@ import { load } from './actions.js';
 import { openConsumption } from './consumption.js';
 import { $, compareLocations, esc, notify, number, productLink, purchaseLabel, request } from './core.js';
 import { inventoryState } from './inventory-data.js';
-import { openLabel } from './labels.js';
 import { populateLocations } from './locations.js';
 let lastHandledLink = null;
 function resetSpoolLink() { lastHandledLink = null; }
@@ -63,8 +62,7 @@ function groupFilaments(records) {
 }
 function spoolActionButtons(spool) {
   const consumeIcon = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v10m-4-4 4 4 4-4M5 14v6h14v-6"/></svg>`;
-  const qrIcon = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h3v3h3v3h-6zM12 3v3m0 6h3m-3 3v6m6-9h3"/></svg>`;
-  return `<button type="button" class="spool-action-icon" data-consume="${spool.id}" title="${th("ui.registrer_forbrug_ca945d")}" aria-label="${th("ui.registrer_forbrug_paa_db38c3", {p1: esc(spool.name)})}">${consumeIcon}</button><button type="button" class="spool-action-icon" data-label="${spool.id}" title="${th("ui.vis_qr_label_3f414c")}" aria-label="${th("ui.qr_label_til_48ba03", {p4: esc(spool.name)})}">${qrIcon}</button>`;
+  return `<button type="button" class="spool-action-icon" data-consume="${spool.id}" title="${th("ui.registrer_forbrug_ca945d")}" aria-label="${th("ui.registrer_forbrug_paa_db38c3", {p1: esc(spool.name)})}">${consumeIcon}</button>`;
 }
 function renderInventory() {
   const inventory = inventoryState.spools.filter(spool => !spool.archived);
@@ -111,7 +109,7 @@ async function handleSpoolLink() {
 function initInventory() {
   $('#add').onclick = $('#empty-add').onclick = () => edit();
   $('#close').onclick = $('#cancel').onclick = () => $('#editor').close();
-  $('#cards').onclick = e => { const more = e.target.closest('[data-more]'); if(more) { addMore(Number(more.dataset.more)); return; } const label = e.target.closest('[data-label]'); if(label) { openLabel(Number(label.dataset.label)); return; } const consume = e.target.closest('[data-consume]'); if (consume) { openConsumption(Number(consume.dataset.consume)); return; } if (e.target.closest('button, a, summary')) return; const target = e.target.closest('[data-edit]'); if(target) { edit(Number(target.dataset.edit)); return; } const card = e.target.closest('[data-expand]'); if(card && !e.target.closest('details')) card.querySelector('details').open = true; };
+  $('#cards').onclick = e => { const more = e.target.closest('[data-more]'); if(more) { addMore(Number(more.dataset.more)); return; } const consume = e.target.closest('[data-consume]'); if (consume) { openConsumption(Number(consume.dataset.consume)); return; } if (e.target.closest('button, a, summary')) return; const target = e.target.closest('[data-edit]'); if(target) { edit(Number(target.dataset.edit)); return; } const card = e.target.closest('[data-expand]'); if(card && !e.target.closest('details')) card.querySelector('details').open = true; };
   $('#cards').onkeydown = event => { if (!['Enter', ' '].includes(event.key) || !event.target.matches('[data-edit], [data-expand]')) return; event.preventDefault(); event.target.click(); };
   $('#material-overview').onclick = event => {
     const toggle = event.target.closest('[data-toggle-material]');
