@@ -894,15 +894,12 @@ test('QR material heading uses a safe spool color and escapes the material name'
 test('A4 action reveals its adjacent workflow and generates selectable labels', () => {
   const html=fs.readFileSync('static/index.html','utf8');
   const view=html.slice(html.indexOf('<section id="qr-labels-view"'),html.indexOf('<footer>'));
-  const gallery=view.slice(view.indexOf('<section id="label-gallery-panel"'),view.indexOf('<section id="a4-labels-section"'));
   const a4=view.slice(view.indexOf('<section id="a4-labels-section"'));
-  assert.ok(gallery.includes('id="label-gallery-open"'));
-  assert.ok(gallery.includes('id="label-gallery"'));
-  assert.ok(!gallery.includes('id="all-labels-open"'));
+  assert.ok(!view.includes('id="label-gallery-panel"'));
   assert.ok(a4.indexOf('id="all-labels-open"')<a4.indexOf('id="all-labels-panel"'));
   assert.ok(a4.includes('id="all-labels-pages"'));
   assert.ok(a4.includes('data-i18n-text="0:labels.a4_generate"'));
-  assert.ok(!view.slice(0,view.indexOf('<section id="label-gallery-panel"')).includes('id="all-labels-open"'));
+  assert.ok(!view.slice(0,view.indexOf('<section id="a4-labels-section"')).includes('id="all-labels-open"'));
   context.inventoryState.spools=context.bulkRecords;
   nodes.get('#all-labels-panel').hidden=true;
   let scrolled=0;

@@ -32,8 +32,7 @@ The frontend uses JavaScript ES modules with explicit imports/exports, without T
 | `inventory.js` | Inventory cards, material overview, filters, and spool form |
 | `dashboard.js` | Inventory overview, active spools, and statistics |
 | `consumption.js` | Individual consumption, history, and history filters |
-| `labels.js`, `label-list-model.js` | Central QR workspace, shared local filters, bounded spool pages, lazy profiles, A4 selection and direct image printing |
-| `thermal-labels.js` | Monochrome M220 SVG layouts, integer-dot QR placement, and PNG export |
+| `labels.js`, `label-list-model.js` | Central QR workspace, local native-spool filters, bounded pages, lazy shared profiles and A4 selection |
 | `label-design.js`, `label-style.js`, `label-renderer.js`, `label-raster.js` | Native editable Phomymo v3 designs, rendering and pure monochrome raster conversion |
 | `printer-definitions.js`, `printer-protocol-m220.js`, `printer-transport.js`, `printer-bluetooth.js`, `printer-usb.js`, `print-jobs.js` | Isolated M220 protocol, browser USB/BLE transports, copies, cancellation and write timeouts |
 | `label-templates.js`, `label-template-settings.js` | Per-size template validation, literal variables, revision-aware saved designs and selected-spool preview UI |

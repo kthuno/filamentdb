@@ -6,54 +6,49 @@ Open **QR labels**, expand **Print via USB/Bluetooth**, then choose a spool's
 **Open print and design** action.
 This native dialog uses the spool's permanent link and current label-profile
 values. It does not change inventory, spool metadata, consumption, or print
-records. The existing classic labels, thermal SVG/PNG downloads and browser
-printing remain available.
+records. Classic A4 browser printing and PNG/JSON export from the designer
+remain available.
 
 ## Find a spool
 
 The QR labels page owns all label workflows. Inventory cards no longer have a
 label button, and the former single-spool label dialog has been removed.
-**Label images**, **Print via USB/Bluetooth**, **QR labels on A4**, and
-**Label templates** expand and
-collapse independently. Both spool overviews include current, empty and archived
-rolls as individual records, with 12 cards per page.
+**Print via USB/Bluetooth**, **QR labels on A4**, and **Label templates** expand
+and collapse independently. The native spool overview includes current, empty
+and archived rolls as individual records, with 12 cards per page.
 
-The shared local search matches name, material, manufacturer, color/color code,
-product ID, location/active slot and spool number. Multiple search terms combine;
-search ignores case and supports Danish characters. Material and manufacturer
-filters combine with the search. Reset filters to restore the complete lists.
-The same filters apply to Label images and Print via USB/Bluetooth; A4 selection
-and inventory filters remain independent. Filtering resets both overview page
-numbers and does not discard working label edits.
+Local search matches name, material, manufacturer, color/color code, product ID,
+location/active slot and spool number. Multiple search terms combine; search
+ignores case and supports Danish characters. Material/manufacturer filters
+combine with search and reset the spool overview's page number. A4 selection
+and inventory filters remain independent.
 
-Only visible label-image cards render QR previews. Material-profile requests
-are cached by manufacturer/material and limited to four simultaneous requests.
-The native list uses lightweight spool cards and loads a profile only when a
-spool is opened. Guide choices and edited values from that spool's image card
-are reused as defaults for a new native design. Saved native designs keep their
-manual overrides while unedited template variables refresh with current spool
-data. See [size-specific templates](label-templates.md) for configuration and
-variable names.
+Manufacturer/material profiles load only for an opened native spool or a
+selected template preview. Lookups are cached and limited to four concurrent
+requests. Textured PEI (or the first available plate) and the first drying
+condition provide initial values; unmatched/failed lookups retain saved spool
+temperatures. Edit individual label content in the designer. Saved native
+labels keep manual overrides while unedited variables refresh from current
+spool data. See [size-specific templates](label-templates.md).
 
 ## Design and preview
 
 Native designs use the selected size and its configured JSON template. The
 last selected size is remembered; otherwise an available template is preferred
 (70 × 80, then 60 × 40, then 40 × 30 mm), with 70 × 80 mm as the final fallback.
-Without a custom template, native labels and existing extended SVG labels
+Without a custom template, native labels
 share a built-in visual style: the wide Bambu Lab wordmark, a white material name on a
 black band, a separate hexadecimal color code, color below the band, profile
 values at the lower left, and a QR code at the lower right. The material name
 keeps its stored capitalization, such as **PLA Matte**. All three preset sizes
-use the same layout rules. The native workflow retains exact 8 dots/mm; the
-older SVG/PNG workflow retains its existing 203-DPI rounding.
+use the same layout rules. The native workflow retains exact 8 dots/mm.
 
 The Bambu Lab wordmark is the existing bundled vector artwork, with its
 CC BY-SA 4.0 attribution preserved in the embedded image metadata and JSON.
 It is included for Bambu/Bambu Lab/BambuLab spools. Other manufacturers use
 text. The QR code uses a round top-left finder with the other two finders
 square. Native QR rendering fills the element square with a one-module white
-margin, matching Phomymo. The SVG label workflow retains its existing sizing.
+margin, matching Phomymo.
 The inspector can choose square or round-top-left finders. The `finderStyle`
 property is a native extension retained by JSON export; external Phomymo
 renderers that do not understand it will use their normal square QR finders.
@@ -122,9 +117,7 @@ The M220 is nominally 203 DPI, using exactly 8 dots/mm:
 | 70 × 80 mm | 560 × 640 dots | 576 × 640 dots |
 
 The printer raster pads on the left for the M220's right-aligned roll without
-scaling the label. PNG export contains only the physical label area. The
-existing SVG/PNG label workflow keeps its previous 203-DPI rounding behavior;
-it is independent of this native workflow.
+scaling the label. PNG export contains only the physical label area.
 
 Threshold is the default for text and QR. Floyd–Steinberg, Atkinson and ordered
 dithering are available for grayscale artwork. QR regions retain binary

@@ -41,10 +41,20 @@ The importer verifies the reviewed PDF checksum, table dimensions, column headin
 
 Automated tests cover exact variant matching, unknown materials, NULL flow ratios, source provenance, method separation, repeated migration, preservation of spool records, API responses, and asynchronous label edits. Physical label and printer checks remain manual.
 
-## QR label image overview
+## Designer and print profiles
 
-On the QR labels page, choose **Show label images** to preview one thermal label per inventory record. Each card supports layout, size, PNG/SVG download, individual printing, and edits to nozzle, bed, flow ratio, and drying. Guide values take priority in this overview; unmatched materials use saved spool temperatures, with unknown values left blank. The default bed is Textured PEI (or the first available plate) and drying uses the first listed method. Each image card offers alternative plate and drying selections plus **Use guide values**. The former single-spool label dialog is removed. Flow remains unknown when the guide supplies no ratio. Edits affect only this overview and survive local filtering, pagination and collapse until page reload; spool data and permanent QR identities remain unchanged. Individual browser printing uses the card’s edited SVG directly without opening an app dialog. Native USB/Bluetooth printing is in its own collapsible section, with a spool list and an editor action. The separate **QR labels on A4** section groups its **Show A4 labels** action with the spool selection and selected-label printing controls. Opening it reveals and scrolls to the selectable A4 previews.
+On **QR labels → Print via USB/Bluetooth**, select a spool and open its design.
+The native label uses the exact manufacturer/material guide match when present;
+unmatched materials and failed lookups retain saved spool temperatures. Missing
+flow/drying values remain unknown. The default build plate is Textured PEI (or
+the first available plate); drying uses the first listed condition. Edit label
+content in the graphical designer without changing spool metadata.
 
-Both label overview buttons toggle their content open and closed. Collapsing preserves A4 selections and edited image values; reopening refreshes the content if the inventory snapshot has changed.
+The selected-spool template previews use the same profile defaults. Lookups
+are lazy, cached by manufacturer/material and limited to four concurrent
+requests. Search, material/manufacturer filters and 12-card pages apply to the
+native spool overview, including archived rolls; they do not affect A4 selection.
 
-Both spool lists share local search and material/manufacturer filters, with 12 records per page. Profiles load only for visible image cards or a selected native spool, reuse cached manufacturer/material lookups, and make at most four concurrent requests. All individual spools remain accessible, including archived rolls; A4 selection is not affected by these filters.
+The former Label images gallery, its separate guide-selection controls and its
+SVG/browser-image print workflow have been removed. PNG/JSON export remains
+available in the graphical print dialog. A4 labels remain a separate workflow.

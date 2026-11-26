@@ -58,7 +58,7 @@ API: `GET/POST /api/locations` and `PUT/DELETE /api/locations/{id}`. Locations h
 - **Add more:** Reuse product information from an existing card. Enter quantity, price per roll, and purchase date. Remaining weight starts at the original filament weight. Opening date, notes, location, and active slot are not copied.
 - **Active spools:** Edit a spool and choose an AMS 2 Pro location/slot, or enter another active printer slot, such as an external spool. An empty field means inventory. Each active slot has one occupant; clear the old spool's active slot before replacing it. Multiple rolls cannot be created in one active slot. An exhausted spool leaves active slots automatically but retains its physical location; restored weight reactivates its AMS 2 Pro slot automatically.
 - **Quick consumption:** Use an active spool's button or **Record consumption** above the inventory. Active spools appear first. The browser remembers the last-used spool and suggests it if filament remains; otherwise it suggests an active spool. The grams field receives focus and Enter saves. Enter slicer grams including any waste you want counted.
-- **QR and direct links:** Open the QR labels page and find the individual spool in Label images or Print via USB/Bluetooth. Download or print its label. Scanning opens consumption recording for that spool; nothing is recorded before submission. Labels use permanent random IDs that are never reused after deletion. Existing spools receive IDs automatically at startup.
+- **QR and direct links:** Open the QR labels page and find the individual spool in Print via USB/Bluetooth. Download or print its label. Scanning opens consumption recording for that spool; nothing is recorded before submission. Labels use permanent random IDs that are never reused after deletion. Existing spools receive IDs automatically at startup.
 
 Open the app through its permanent network address, such as `https://filament.example.com`, before creating labels. Your phone must reach the address and trust its DNS/HTTPS setup. Links created on `localhost` work only on the device opening them. Reprint labels after changing domains. QR generation is local and sends no data to external services.
 
@@ -66,36 +66,30 @@ The bundled QR generator comes from [Project Nayuki](https://www.nayuki.io/page/
 
 ## Print QR labels
 
-**QR labels → QR labels on A4 → Show A4 labels** generates the overview directly on the page without a dialog. It shows one label per spool, including empty spools, sorted by location. Each uses the same name, manufacturer, material type, color, product ID, and permanent QR link as its image/native label. Checkboxes control printing. All are initially selected; use **Select all** or **Deselect all** for bulk selection. **Print selected labels** prints only selected labels, up to nine framed labels per A4 page (3 × 3), without gaps from deselected labels. Printing is disabled if none are selected. Use portrait A4 at 100% scale with browser headers/footers disabled. Open the permanent network address before printing.
+**QR labels → QR labels on A4 → Show A4 labels** generates the overview directly on the page without a dialog. It shows one label per spool, including empty spools, sorted by location. Each uses the same name, manufacturer, material type, color, product ID, and permanent QR link as its native label. Checkboxes control printing. All are initially selected; use **Select all** or **Deselect all** for bulk selection. **Print selected labels** prints only selected labels, up to nine framed labels per A4 page (3 × 3), without gaps from deselected labels. Printing is disabled if none are selected. Use portrait A4 at 100% scale with browser headers/footers disabled. Open the permanent network address before printing.
 
 ## Phomemo M220 labels
 
-Label images and native printing share local search, material/manufacturer filters,
-and pages of 12 individual spools, including archived ones. A4 selection is independent.
+The native spool list has local search, material/manufacturer filters and pages
+of 12 individual spools, including archived ones. A4 selection is independent.
 
-For direct USB/Bluetooth printing and editable Phomymo-compatible designs,
-open **QR labels**, expand **Print via USB/Bluetooth**, find the spool and
-choose **Open print and design**.
-See [native M220 printing](native-printing.md) for connection requirements,
-copies, darkness, feed, JSON import/export and browser-local design storage.
+Open **QR labels → Print via USB/Bluetooth**, find the spool and choose
+**Open print and design**. Design and print directly, or export PNG/JSON from
+the same dialog. Select a label size of 40 × 30, 60 × 40 or 70 × 80 mm. Shared
+templates can be edited in **Label templates**; individual edits affect only
+the chosen spool and size. Scanning its permanent QR link never records
+consumption automatically. The former Label images gallery is removed.
 
-Open **QR labels → Label images → Show label images**, find the spool and select **M220 · Extended** or **M220 · Compact** on its card. Both formats use black and white only and retain the permanent QR link to consumption recording for that particular roll. Scanning never records consumption automatically. Classic labels remain available in the separate bulk A4 section.
+The default Bambu Lab layout retains the bundled wordmark, material band,
+color text, temperatures, flow ratio, drying information and QR code. Other
+manufacturers appear as text. Manufacturer/material guide lookups provide
+initial profile values; unmatched/failed lookups retain saved spool temperatures.
+All content can be adjusted in the designer without changing inventory data.
 
-Choose the paper size as **width × height**: 40 × 30 mm, 60 × 40 mm, or 70 × 80 mm. The default is 60 × 40 mm. All three sizes support both layouts. The extended format contains the manufacturer logo/name, material, color with product ID, hexadecimal color code, nozzle/bed temperatures, flow ratio, drying information, and QR code. The compact format contains the logo/name, QR code, material, color with product ID, and hexadecimal color code. The hexadecimal code is printed as text, never as a color swatch.
-
-Only Bambu Lab has a bundled logo; manufacturer names `Bambu Lab`, `BambuLab`, and `Bambu` are recognized without case sensitivity. Other manufacturers appear as text. Image-card temperatures use an exact match from the bundled [Bambu guide lookup](material-profiles.md) when available; otherwise they use saved spool temperatures, with zero treated as unknown. Edits made while the lookup is loading take precedence. **Use guide values** explicitly replaces temperatures and drying instructions with the selected reference values. These label-only overrides are not saved to inventory. They survive filtering, pagination and collapsing the overviews until the page is reloaded. Missing information appears as an em dash.
-
-Choose the guide build plate and drying method on the image card. Textured PEI and blast drying oven are initially selected when available; the guide also includes separate conditions for drying on the printer heatbed. Switching a plate or method replaces its associated label field, and relevant drying-method notes appear below the selectors. The profile does not infer a plate from a print project. The PDF contains no flow ratios: enter a calibrated value manually. Materials absent from this particular guide, such as PETG HF, receive no substitute profile. Generic PLA is not silently treated as PLA Basic. Other manufacturers and unavailable lookups retain manual label generation.
-
-Choose **PNG image (203 dpi)** for Print Master, or **SVG vector** for other printing software, then **Download label**. PNG dimensions match the chosen size at the M220's 203 dpi: 320 × 240, 480 × 320, or 559 × 639 pixels. PNG exports are opaque black and white. Import the entire image into Print Master, set the matching label dimensions and orientation, and avoid cropping or stretching. Browser printing starts directly from the image card without the removed spool-label dialog, using the selected physical page size; disable headers/footers and use 100% scale. Printer drivers and browser print settings can override page size, so PNG import is the preferred phone workflow.
-
-Both thermal layouts use a circular top-left QR finder and square finders in the other two corners. All data modules use whole printer dots and retain a four-module white quiet zone. The extended layout places the color in the information column to give the QR code more space. Small formats display a warning when modules are only two dots wide; exceptionally long URLs disable export until a larger size or compact layout is selected. Use the permanent phone-reachable app address before generating labels. Test a physical label with your phone before printing a batch; actual M220 output and scanning must be verified manually by the user.
-
-The M220 resolution is documented on [Phomemo's product page](https://phomemo.com/en-gb/products/m220-label-maker). Label generation is local and requires no external service or infrastructure changes.
-
-### Logo attribution
-
-The bundled Bambu Lab logo artwork is by **Lwde**, from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:BambuLab_logo.svg), licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The adaptation rearranges the artwork horizontally and uses a black fill for thermal printing; the adapted logo artwork is distributed under the same license in `static/vendor/bambu-lab-logo.js`. SVG exports include this credit in their metadata. When sharing PNG labels, retain this attribution with the shared files. Bambu Lab remains a trademark of its respective owner; the logo identifies the spool manufacturer.
+See [native M220 printing](native-printing.md) for connections, copies, darkness,
+feed, exports and browser-local designs, [templates](label-templates.md) for
+shared layouts and variables, and [material profiles](material-profiles.md)
+for exact-match guide coverage.
 
 ## Archive spools
 

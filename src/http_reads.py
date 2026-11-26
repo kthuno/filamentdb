@@ -502,10 +502,6 @@ class ReadRoutes:
                 "text/javascript; charset=utf-8",
             ),
             "/print-jobs.js": ("print-jobs.js", "text/javascript; charset=utf-8"),
-            "/thermal-labels.js": (
-                "thermal-labels.js",
-                "text/javascript; charset=utf-8",
-            ),
             "/administration.js": (
                 "administration.js",
                 "text/javascript; charset=utf-8",

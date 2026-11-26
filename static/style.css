@@ -14,8 +14,6 @@
 
 .transparent-spool{background:repeating-radial-gradient(circle,transparent 0 3px,#ffffff35 4px 5px),repeating-conic-gradient(#ffffff20 0% 25%,#00000015 0% 50%) 0 0/16px 16px,var(--spool);opacity:.65;border-color:#ffffff66}
 
-
-
 .grouped-card{box-shadow:0 4px 0 -1px var(--bg),0 5px 0 0 var(--line)}.quantity-badge{position:absolute;right:12px;top:12px;background:var(--purple);color:var(--bg);font-weight:700;font-size:12px;border-radius:6px;padding:4px 9px}.spool-members{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}.spool-members summary{cursor:pointer;color:var(--purple);font-size:12px}.spool-member{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:12px}.spool-member strong{font-size:11px;font-weight:500}.spool-member small{display:block;color:var(--muted);font-size:10px;overflow-wrap:anywhere}.spool-member button{font-size:11px;padding:5px 8px;flex-shrink:0}
 
 .badge{color:var(--purple)}
@@ -99,7 +97,6 @@ input:disabled{opacity:.5;cursor:not-allowed}.print-fields{display:grid;grid-tem
 #location-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}#location-list>.location-record{grid-column:1/-1}#location-list>.drybox-device{grid-column:auto;margin:0;min-width:0}#location-list>.ams-device:not(.drybox-device){margin:0}.drybox-device .drybox-slot{flex-direction:column;align-items:stretch;gap:18px}.drybox-device .drybox-visual{align-self:center}.drybox-device .drybox-content{max-width:none;width:100%}.drybox-device .ams-slot-bar{max-width:none;width:100%}.drybox-device .ams-slot-weight{font-size:18px}.drybox-device .ams-slot-weight small{font-size:12px}@media(max-width:700px){#location-list{grid-template-columns:minmax(0,1fr)}}
 
 @media(min-width:701px) and (max-width:1200px){#location-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
-
 
 .nav{min-width:0;gap:10px}.nav>span:nth-child(2){min-width:0;overflow-wrap:anywhere}.nav #nav-count{flex-shrink:0;white-space:nowrap;min-width:3ch;text-align:right}
 
@@ -244,7 +241,6 @@ input:disabled{opacity:.5;cursor:not-allowed}.print-fields{display:grid;grid-tem
 @media(max-width:1100px){.dashboard-heading{align-items:flex-start;flex-direction:column}.dashboard-shortcuts{grid-template-columns:1fr}.dashboard-shortcuts>a{padding:16px}}
 @media(max-width:600px){.dashboard-heading{padding:20px;margin-top:24px}.dashboard-actions{width:100%}.dashboard-actions button{flex:1;font-size:12px;padding:10px}.dashboard-section-title{flex-wrap:wrap}#dashboard-view .quick-panel>.section-title{flex-wrap:wrap;gap:10px}#dashboard-view .usage-statistics>.section-title{flex-wrap:wrap;gap:10px}}
 
-
 /* Compact spool cards with the illustration beside the product details. */
 .spool-card-heading{display:grid;grid-template-columns:minmax(0,1fr) 64px;gap:14px;align-items:start}
 .spool-card-copy{min-width:0;overflow-wrap:anywhere}
@@ -306,24 +302,11 @@ input:disabled{opacity:.5;cursor:not-allowed}.print-fields{display:grid;grid-tem
 #language-error{position:absolute;right:0;bottom:100%;width:max-content;max-width:min(240px,80vw);padding:8px;margin:0 0 6px;background:var(--bg);border:1px solid var(--line);border-radius:5px;color:#ff5555;font-size:11px;z-index:1}
 @media(max-width:700px){footer{flex-wrap:wrap;align-items:center}.footer-meta{gap:8px}}
 
-/* Thermal labels use their own monochrome SVG, independent of spool colors. */
+/* Native label print settings. */
 .thermal-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;text-align:left;margin:16px 0}
 .thermal-controls label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted);min-width:0}
 .thermal-controls input,.thermal-controls select{width:100%;min-width:0}
 @media(max-width:420px){.thermal-controls{grid-template-columns:1fr}}
-
-.thermal-guide-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;margin:12px 0}
-.thermal-guide-actions a{color:var(--purple)}
-
-/* Editable per-spool thermal previews in the QR labels page. */
-#label-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
-.label-gallery-card{min-width:0;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
-.label-gallery-card h3{color:var(--purple);overflow-wrap:anywhere}
-.gallery-preview{background:white;border-radius:6px;overflow:hidden}
-.gallery-preview svg{display:block;width:100%;height:auto;max-height:400px}
-.gallery-status{font-size:12px;color:var(--muted)}
-.gallery-error{color:var(--red)}
-.label-gallery-card .modal-actions{flex-wrap:wrap}
 
 /* Keep each QR workflow's action beside its heading and output. */
 #qr-labels-view>.quick-panel>.section-title{gap:12px;flex-wrap:wrap}
@@ -331,9 +314,6 @@ input:disabled{opacity:.5;cursor:not-allowed}.print-fields{display:grid;grid-tem
 #qr-labels-view>.quick-panel>.section-title button{max-width:100%;white-space:normal}
 #a4-labels-section #all-labels-panel{margin-top:20px}
 @media(max-width:600px){#qr-labels-view>.quick-panel>.section-title{align-items:flex-start;flex-direction:column}}
-
-#label-gallery[hidden]{display:none}
-
 
 /* Administration stays below the scrollable primary navigation. */
 .admin-nav{flex-shrink:0;border-top:1px solid var(--line);padding-top:12px;margin-top:auto;margin-bottom:0}
@@ -517,8 +497,7 @@ input:disabled{opacity:.5;cursor:not-allowed}.print-fields{display:grid;grid-tem
 .native-spool-card button{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:12px;padding:10px 8px;font-size:11px;line-height:1.4}
 .native-spool-card button svg{width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 @media(prefers-reduced-motion:reduce){.native-spool-card{transition:none}.native-spool-card:hover{transform:none}}
-.gallery-guide p{font-size:11px;line-height:1.5;color:var(--muted)}
-#single-label-print{display:none}
+
 #label-templates-panel[hidden]{display:none}
 #label-template-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:16px;margin:18px 0}
 .label-template-card{display:flex;flex-direction:column;min-width:0;padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
@@ -546,7 +525,6 @@ input:disabled{opacity:.5;cursor:not-allowed}.print-fields{display:grid;grid-tem
 #label-template-variables code{color:var(--purple);white-space:nowrap;font-size:11px}
 @media(max-width:900px){.label-filter-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.label-filter-fields label:first-child{grid-column:1/-1}}
 @media(max-width:500px){.label-filter-fields{grid-template-columns:1fr}.label-pagination{align-items:flex-start;flex-direction:column}.label-pagination>div{width:100%}.label-pagination button{flex:1}}
-@media print{#single-label-print[data-print-active="true"]{display:block!important;page:thermal-label;margin:0;padding:0;background:white}#single-label-print svg{display:block;max-width:none;max-height:none;print-color-adjust:exact;-webkit-print-color-adjust:exact}}
 
 /* Locally bundled graphical designer; host printing and persistence stay outside. */
 .phomymo-designer-frame{width:100%;height:70vh;min-height:460px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}

@@ -358,7 +358,7 @@ test('native dialog connects USB and submits the actual copies, darkness and fee
   await ui.click('close');assert.equal(hw.device.opened,false);
 });
 
-test('native labels share the wordmark, material band, mixed-case type and rounded QR with thermal labels',async()=>{
+test('native labels preserve the shared wordmark, material band, mixed-case type and rounded QR',async()=>{
   const {spoolDesign,importDesign,exportDesign}=await designModule();
   const {BAMBU_LOGO_IMAGE,extendedLabelGeometry}=await import('../static/label-style.js');
   for(const manufacturer of ['Bambu Lab','BambuLab','Bambu',' Bambu Lab '])for(const size of ['40x30','60x40','70x80']) {
