@@ -14,10 +14,10 @@ export async function loadSharedLabelTemplates() {
   const request=++templateRequestId,data=await templateRequest('');
   if(request>templateAppliedId){setSharedLabelTemplates(data.templates,data.app_version);templateAppliedId=request;}
 }
-export async function saveSharedLabelTemplate(size,json,{onlyIfEmpty=false}={}) {
+export async function saveSharedLabelTemplate(size,json,{onlyIfEmpty=false,expectedRevision}={}) {
   const design=importLabelTemplate(json,size),existing=readLabelTemplate(size);
   if(onlyIfEmpty && existing)throw new PrinterError('template_conflict');
-  await templateRequest('/'+size,{method:'PUT',body:JSON.stringify({design,expected_revision:existing?.revision||null})});
+  await templateRequest('/'+size,{method:'PUT',body:JSON.stringify({design,expected_revision:expectedRevision===undefined?(existing?.revision||null):expectedRevision})});
   await loadSharedLabelTemplates();return readLabelTemplate(size);
 }
 export async function removeSharedLabelTemplate(size) {

@@ -69,3 +69,14 @@ Administration is the final element in the sidebar, pinned below the scrollable 
 Shared label templates use `label-template-store.js` and `/api/label-templates`;
 `src/label_templates.py` validates designs and owns optimistic revisions in the
 `label_templates` table. HTTP writes retain the shared transaction boundary.
+
+The full graphical label designer is vendored under `static/vendor/phomymo/`
+from the pinned Phomymo commit. `phomymo-designer.js` owns the opaque-origin
+iframe bridge and strict source/session/document validation;
+`template-designer-dialog.js` saves shared templates with their opening
+revision. `label-print-dialog.js` embeds the same editor for concrete spool
+labels and requests a fresh snapshot before save/export/print. The sandbox
+has no app database or hardware access. `src/designer_assets.py` is the explicit
+asset/CORS/CSP allowlist. Locally bundled libraries and precompiled CSS avoid
+CDN/runtime build dependencies; attribution and dependency licenses are in
+`static/vendor/phomymo-NOTICE.txt`.

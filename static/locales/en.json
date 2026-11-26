@@ -1203,6 +1203,17 @@
     "templates.loading": "Loading templates from the database…",
     "templates.preview_loading": "Rendering preview…",
     "templates.preview_empty": "Select a spool to preview.",
-    "templates.preview_spool": "Spool #{id} · {name}"
+    "templates.preview_spool": "Spool #{id} · {name}",
+    "designer.frame_title": "Visual label designer",
+    "designer.template_title": "Design template · {size} mm",
+    "designer.template_help": "Edit the shared template visually. Variables remain as $name$. Saving replaces only the template for this size.",
+    "designer.variable": "Template variable",
+    "designer.insert_variable": "Insert into selected text/QR",
+    "designer.save_template": "Save template to database",
+    "designer.edit_template": "Open designer",
+    "designer.advanced": "Advanced fields and print preview",
+    "native.error_designer_failed": "The designer could not load or respond. Close the dialog and try again.",
+    "native.error_barcode_too_dense": "The barcode is too dense. Widen its field or shorten its content.",
+    "native.type_barcode": "Barcode"
   }
 }

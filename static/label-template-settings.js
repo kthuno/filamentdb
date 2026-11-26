@@ -1,3 +1,4 @@
+import { openTemplateDesigner } from './template-designer-dialog.js';
 import { $, esc, compareLocations } from './core.js';
 import { t, th } from './i18n.js';
 import { inventoryState } from './inventory-data.js';
@@ -24,7 +25,7 @@ function templateRow(size) {
     <p>${record?th('templates.configured',{name:esc(record.design.name),count:record.design.elements.length}):th('templates.not_configured')}</p>
     <div class="template-preview"><canvas data-template-preview="${size}" hidden></canvas><p data-template-preview-status role="status"></p></div>
     <p data-template-error role="alert"></p>
-    <div class="template-card-actions"><label class="native-file-button">${th('templates.import')}<input type="file" accept=".json,application/json" data-template-import="${size}" aria-label="${th('templates.import_size',{size:esc(label)})}"></label>
+    <div class="template-card-actions"><button type="button" data-template-action="design" data-template-size="${size}">${th('designer.edit_template')}</button><label class="native-file-button">${th('templates.import')}<input type="file" accept=".json,application/json" data-template-import="${size}" aria-label="${th('templates.import_size',{size:esc(label)})}"></label>
     <button type="button" data-template-action="example" data-template-size="${size}">${th('templates.example')}</button>
     <button type="button" data-template-action="export" data-template-size="${size}"${record?'':' disabled'}>${th('templates.export')}</button>
     <button type="button" data-template-action="remove" data-template-size="${size}"${record?'':' disabled'}>${th('templates.remove')}</button>
@@ -103,7 +104,8 @@ async function useTemplateSetting(event) {
   const size=button.dataset.templateSize,action=button.dataset.templateAction;if(!Object.hasOwn(PRINT_PRESETS,size))return;
   button.disabled=true;
   try {
-    if(action==='remove' || action==='migrate') {
+    if(action==='design') {openTemplateDesigner(size,{onSaved:async()=>{renderTemplateSettings();await renderTemplatePreviews();}});}
+    else if(action==='remove' || action==='migrate') {
       templateImportVersions.set(size,(templateImportVersions.get(size)||0)+1);
       if(action==='remove')await removeSharedLabelTemplate(size);
       else await saveSharedLabelTemplate(size,JSON.stringify(browserTemplate(size).design),{onlyIfEmpty:true});

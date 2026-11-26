@@ -1203,6 +1203,17 @@
     "templates.loading": "Henter templates fra databasen…",
     "templates.preview_loading": "Danner preview…",
     "templates.preview_empty": "Vælg en spole for at se preview.",
-    "templates.preview_spool": "Spole #{id} · {name}"
+    "templates.preview_spool": "Spole #{id} · {name}",
+    "designer.frame_title": "Grafisk labeldesigner",
+    "designer.template_title": "Design template · {size} mm",
+    "designer.template_help": "Redigér den fælles template visuelt. Variabler bevares som $navn$. Gem erstatter kun templaten for denne størrelse.",
+    "designer.variable": "Templatevariabel",
+    "designer.insert_variable": "Indsæt i valgt tekst/QR",
+    "designer.save_template": "Gem template i databasen",
+    "designer.edit_template": "Åbn designer",
+    "designer.advanced": "Avancerede felter og printpreview",
+    "native.error_designer_failed": "Designeren kunne ikke indlæses eller svare. Luk dialogen og prøv igen.",
+    "native.error_barcode_too_dense": "Stregkoden er for tæt. Gør feltet bredere eller forkort indholdet.",
+    "native.type_barcode": "Stregkode"
   }
 }

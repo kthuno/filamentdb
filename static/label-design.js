@@ -1,3 +1,4 @@
+import { BARCODE_FORMATS, barcodeEncoding } from './barcode-renderer.js';
 import { PRINT_PRESETS } from './printer-definitions.js';
 import { PrinterError } from './printer-transport.js';
 import { BAMBU_LOGO_IMAGE, LOGO_ATTRIBUTION, isBambuBrand, extendedLabelGeometry } from './label-style.js';
@@ -15,7 +16,7 @@ export function validateDesign(value) {
   if(!value || value.version!==3 || typeof value.name!=='string' || value.name.length>200 || !value.labelSize || !Object.values(PRINT_PRESETS).some(([w,h])=>value.labelSize.width===w && value.labelSize.height===h) || !Array.isArray(value.elements) || value.elements.length>100 || value.multiLabel?.enabled || value.isTemplate)invalid();
   const ids=new Set();
   for(const element of value.elements) {
-    if(!element || !['text','image','shape','qr'].includes(element.type) || typeof element.id!=='string' || ids.has(element.id) || (element.zone!=null && element.zone!==0))invalid();
+    if(!element || !['text','image','shape','qr','barcode'].includes(element.type) || typeof element.id!=='string' || ids.has(element.id) || (element.zone!=null && element.zone!==0))invalid();
     ids.add(element.id);
     for(const field of ['x','y','width','height'])if(!Number.isFinite(element[field]) || Math.abs(element[field])>1000)invalid();
     if(element.width<1 || element.height<1 || (element.rotation!=null && (!Number.isFinite(element.rotation)||Math.abs(element.rotation)>360)))invalid();
@@ -26,12 +27,16 @@ export function validateDesign(value) {
       if(element.align!=null && !['left','center','right'].includes(element.align))invalid();
       if(element.verticalAlign!=null && !['top','middle','bottom'].includes(element.verticalAlign))invalid();
     }
+    if(element.type==='barcode') {
+      if(typeof element.barcodeData!=='string'||element.barcodeData.length>500 || !BARCODE_FORMATS.includes(element.barcodeFormat||'CODE128') || (element.textFontSize!=null&&(!Number.isFinite(element.textFontSize)||element.textFontSize<1||element.textFontSize>200)))invalid();
+      barcodeEncoding(element);
+    }
     if(element.type==='qr' && (typeof element.qrData!=='string' || !element.qrData || element.qrData.length>2953))invalid();
     if(element.type==='qr' && (element.rotation||0)%90!==0)invalid();
     if(element.type==='qr' && element.errorCorrection!=null && !['L','M','Q','H'].includes(element.errorCorrection))invalid();
     if(element.type==='image' && (typeof element.imageData!=='string' || (!/^data:image\/(png|jpeg);base64,[a-zA-Z0-9+/=\r\n]+$/.test(element.imageData) && element.imageData!==BAMBU_LOGO_IMAGE) || element.imageData.length>700000))invalid();
     if(element.type==='qr' && element.finderStyle!=null && !['square','round-top-left'].includes(element.finderStyle))invalid();
-    if(element.type==='image' && ((element.brightness||0)!==0 || (element.contrast||0)!==0 || (element.dither!=null && !['none','threshold'].includes(element.dither))))invalid();
+    if(element.type==='image' && (['brightness','contrast'].some(key=>element[key]!=null&&(!Number.isFinite(element[key])||Math.abs(element[key])>100)) || (element.dither!=null && !['none','threshold','floyd-steinberg','atkinson','ordered','auto'].includes(element.dither))))invalid();
     if(element.type==='shape' && !['rectangle','ellipse','triangle','line'].includes(element.shapeType))invalid();
     for(const field of ['strokeWidth','cornerRadius'])if(element[field]!=null && (!Number.isFinite(element[field]) || element[field]<0 || element[field]>100))invalid();
   }

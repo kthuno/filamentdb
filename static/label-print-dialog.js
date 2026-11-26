@@ -1,3 +1,4 @@
+import { PhomymoDesigner, designerFrameHTML } from './phomymo-designer.js';
 import { $, esc } from './core.js';
 import { t, th } from './i18n.js';
 import { PRINT_PRESETS } from './printer-definitions.js';
@@ -25,8 +26,8 @@ class NativePrintDialog {
     this.root=$('#native-label-dialog');this.transport=null;this.connecting=false;this.previewVersion=0;this.ready=false;
     this.jobs=new PrintJobs({onState:()=>this.controls()});
     this.root.addEventListener('cancel',()=>this.endSession());
-    this.root.addEventListener('close',()=>this.endSession());
-    globalThis.window?.addEventListener('pagehide',()=>this.endSession());
+    this.root.addEventListener('close',()=>{this.designer?.dispose();this.designer=null;this.endSession();});
+    globalThis.window?.addEventListener('pagehide',()=>{this.designer?.dispose();this.designer=null;this.endSession();});
   }
   find(name) { return this.root.querySelector('[data-native-field="'+name+'"]'); }
   action(name) { return this.root.querySelector('[data-native-action="'+name+'"]'); }
@@ -40,7 +41,7 @@ class NativePrintDialog {
   async open(spool,link,options) {
     if(this.jobs.busy || this.connecting)return;
     this.session=(this.session||0)+1;this.spool=spool;this.link=link;this.options=options;this.selected=0;
-    this.sizeDrafts=new Map();const session=this.session;
+    this.designer?.dispose();this.sizeDrafts=new Map();const session=this.session;
     let templateLoadError=null;
     try {await loadSharedLabelTemplates();}catch(error){templateLoadError=error;}
     if(session!==this.session)return;this.templateFetchError=templateLoadError;
@@ -51,14 +52,14 @@ class NativePrintDialog {
       <div class="native-printer-bar">${nativeSelect('transport',[['bluetooth','Bluetooth'],['usb','USB']])}${nativeButton('connect')}${nativeButton('disconnect')}
       <p data-native-status role="status" aria-live="polite"></p></div>
       <p data-native-support role="status"></p><p data-native-template-status role="status"></p><p data-native-error role="alert"></p>
-      <div class="native-print-workspace"><section class="native-design-settings"><fieldset data-native-editor><legend>${th('native.design')}</legend>
+      ${designerFrameHTML()}<details class="native-advanced-editor"><summary>${th('designer.advanced')}</summary><div class="native-print-workspace"><section class="native-design-settings"><fieldset data-native-editor><legend>${th('native.design')}</legend>
       ${nativeInput('name','text','maxlength="200"')}${nativeSelect('size',Object.keys(PRINT_PRESETS).map(key=>[key,key.replace('x',' × ')+' mm']))}
       ${nativeSelect('dither',[['threshold',t('native.threshold')],['floyd-steinberg','Floyd–Steinberg'],['atkinson','Atkinson'],['ordered',t('native.ordered')]])}
       <label>${th('native.element')}<select data-native-elements></select></label><div data-native-inspector></div>
       <div class="native-editor-actions">${nativeButton('add-text')}${nativeButton('add-shape')}${nativeButton('add-qr')}
       <label class="native-file-button">${th('native.add-image')}<input type="file" data-native-image accept="image/png,image/jpeg"></label>
       ${nativeButton('remove')}${nativeButton('forward')}${nativeButton('backward')}</div>
-      </fieldset></section><section class="native-label-preview" aria-label="${th('native.preview')}"><canvas data-native-preview></canvas><p data-native-dimensions></p></section></div>
+      </fieldset></section><section class="native-label-preview" aria-label="${th('native.preview')}"><canvas data-native-preview></canvas><p data-native-dimensions></p></section></div></details>
       <fieldset data-native-settings><legend>${th('native.print_settings')}</legend><div class="thermal-controls">
       ${nativeInput('copies','number','min="1" max="99" step="1"')}${nativeInput('density','number','min="1" max="8" step="1"')}${nativeInput('feed','number','min="0" max="255" step="1"')}
       </div></fieldset><p>${th('native.transfer_help')}</p>
@@ -72,7 +73,13 @@ class NativePrintDialog {
     try { settings=validatePrintSettings(JSON.parse(globalThis.localStorage?.getItem('filamentdb.print-settings')||'{}')); } catch {}
     for(const [key,value] of Object.entries(settings))this.find(key).value=value;
     this.find('name').value=this.design.name;this.setSize();this.listElements();this.bind();this.controls();
-    this.message('disconnected');this.root.showModal();await this.refresh();
+    this.message('disconnected');this.root.showModal();
+    this.designer=new PhomymoDesigner(this.root.querySelector('[data-phomymo-designer]'),{
+      design:this.design,validate:importDesign,onReady:()=>this.controls(),
+      onChange:design=>{if(this.jobs.busy||this.designerSyncing)return;this.design=design;this.edited=true;this.listElements();this.refresh();},
+      onError:error=>{this.ready=false;this.controls();this.error(error);},
+    });
+    this.controls();await this.refresh();
   }
   loadSizeDesign(size,restore=true) {
     this.templateProblem=this.templateFetchError||null;this.templateRecord=null;this.edited=false;
@@ -121,7 +128,7 @@ class NativePrintDialog {
         const element=this.design.elements[this.selected];if(!element)return;
         element[key]=['x','y','width','height','rotation','fontSize','strokeWidth'].includes(key)?(event.target.value===''?NaN:Number(event.target.value)):event.target.value;
       }
-      this.refresh();
+      this.designer?.replace(this.design);this.refresh();
     };
     this.root.onchange=event=>{
       if(event.target.matches('[data-native-elements]')){this.selected=Number(event.target.value);this.inspector();return;}
@@ -133,7 +140,7 @@ class NativePrintDialog {
           if(draft){this.design=draft.design;this.edited=draft.edited;this.templateRecord=draft.templateRecord;this.templateProblem=draft.templateProblem;}
           else this.loadSizeDesign(size);
           try {globalThis.localStorage?.setItem('filamentdb.native-label-size',size);}catch {}
-          this.find('name').value=this.design.name;this.selected=0;this.setSize();this.listElements();this.refresh();
+          this.find('name').value=this.design.name;this.selected=0;this.setSize();this.listElements();this.designer?.replace(this.design);this.refresh();
         }catch(error){this.error(error);}
       }
       if(event.target===this.find('dither'))this.refresh();
@@ -156,7 +163,8 @@ class NativePrintDialog {
   }
   controls() {
     if(!this.design)return;
-    const busy=this.jobs.busy,locked=busy||this.connecting,connected=Boolean(this.transport?.connected);
+    if(this.designer)this.designer.frame.inert=Boolean(this.jobs.busy||this.connecting||this.designerSyncing);
+    const busy=this.jobs.busy,locked=busy||this.connecting||this.designerSyncing,connected=Boolean(this.transport?.connected);
     this.root.querySelector('[data-native-editor]').disabled=locked;this.root.querySelector('[data-native-settings]').disabled=locked;
     this.find('transport').disabled=locked||connected;
     const reason=printerSupport(this.find('transport').value);
@@ -164,7 +172,7 @@ class NativePrintDialog {
     let valid=true;try {validatePrintSettings(this.settings());}catch {valid=false;}
     this.action('connect').disabled=locked||connected||Boolean(reason);
     this.action('disconnect').disabled=!connected||locked;
-    this.action('print').disabled=locked||!connected||!this.ready||!valid;
+    this.action('print').disabled=Boolean(this.designer&&!this.designer.ready)||locked||!connected||!this.ready||!valid;
     this.action('cancel').disabled=!locked;
     for(const key of ['json','png','save'])this.action(key).disabled=locked||!this.ready;
     for(const key of ['reset'])this.action(key).disabled=locked;
@@ -209,6 +217,12 @@ class NativePrintDialog {
       return;
     }
     if(action==='disconnect'){await this.endSession();this.message('disconnected');this.controls();return;}
+    if(['print','save','json','png'].includes(action) && this.designer) {
+      if(this.designerSyncing||this.jobs.busy)throw new PrinterError('busy');
+      this.designerSyncing=true;this.controls();
+      try {this.design=await this.designer.snapshot();this.edited=true;this.listElements();await this.refresh();if(!this.ready)throw new PrinterError('invalid_design');}
+      finally {this.designerSyncing=false;this.controls();}
+    }
     if(action==='print') {
       const settings=validatePrintSettings(this.settings());
       try { globalThis.localStorage?.setItem('filamentdb.print-settings',JSON.stringify(settings)); } catch {}
@@ -229,7 +243,7 @@ class NativePrintDialog {
     }
     if(action==='reset') {
       this.loadSizeDesign(this.find('size').value,false);this.selected=0;
-      this.find('name').value=this.design.name;this.setSize();this.listElements();await this.refresh();return;
+      this.find('name').value=this.design.name;this.setSize();this.listElements();this.designer?.replace(this.design);await this.refresh();return;
     }
     if(action==='json'){this.download(new Blob([exportDesign(this.design)],{type:'application/json'}),'json');return;}
     if(action==='png') {
@@ -249,7 +263,7 @@ class NativePrintDialog {
       const next=this.selected+(action==='forward'?1:-1);
       if(next>=0 && next<this.design.elements.length){[this.design.elements[this.selected],this.design.elements[next]]=[this.design.elements[next],this.design.elements[this.selected]];this.selected=next;}
     }
-    this.listElements();await this.refresh();
+    this.listElements();this.designer?.replace(this.design);await this.refresh();
   }
   download(blob,extension) {
     const url=URL.createObjectURL(blob),anchor=document.createElement('a');anchor.href=url;
@@ -265,7 +279,7 @@ class NativePrintDialog {
       if(session!==this.session||this.jobs.busy||this.connecting||!this.root.open)return;
       this.design=design;this.selected=0;this.edited=true;this.templateProblem=null;
       try {this.templateRecord=readLabelTemplate(design.labelSize.width+'x'+design.labelSize.height);}catch {this.templateRecord=null;}
-      this.find('name').value=design.name;this.setSize();this.listElements();await this.refresh();this.message('imported');
+      this.find('name').value=design.name;this.setSize();this.listElements();this.designer?.replace(this.design);await this.refresh();this.message('imported');
     } catch(error) {if(session===this.session)this.error(error);}
   }
   async addImage(file) {

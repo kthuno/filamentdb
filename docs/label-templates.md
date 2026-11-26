@@ -18,15 +18,26 @@ The M220 is nominally 203 DPI. Width and height are not interchangeable.
 
 ## Configure and use a template
 
-1. Download an example from the corresponding size card, or use a supported
-   Phomymo v3 design JSON as a starting point.
-2. Edit the design and insert the variables below. Keep `labelSize` as numeric
-   millimetres and positions/dimensions as numeric printer dots.
-3. Import the JSON under its matching size. A size mismatch or unsupported
-   content is rejected before replacing a saved template.
-4. Open a spool in Print via USB/Bluetooth and choose that size. The template
-   is instantiated with the spool's data and current label-profile values.
-5. Edit the individual label if needed, then preview, export or print it.
+1. Open **QR labels → Label templates** and choose **Open designer** on a size
+   card. An unconfigured size starts from its example design.
+2. Use the bundled Phomymo canvas to select, drag, resize, rotate, align, group,
+   duplicate and reorder elements, or undo/redo changes. Add text, QR codes,
+   barcodes, shapes, PNG/JPEG images, or the first page of a PDF as an image.
+3. Enter dollar variables in text or QR content. The host variable selector can
+   insert a variable into the selected text/QR element. The upstream
+   `{{field}}` CSV/dataset workflow is not used.
+4. Choose **Save template to database**. Only this size's shared template is
+   replaced; inventory and individual saved labels are unchanged. Conflicts
+   leave the edited document open for review rather than overwriting newer work.
+5. Open a spool in Print via USB/Bluetooth. Its instantiated template opens in
+   the same graphical designer; edit and print without changing the shared
+   template. **Save design in browser** saves only this spool and size.
+
+JSON import/export remains available on the size cards for backup and external
+editing. The supported sizes remain fixed while a designer is open. The
+advanced numeric inspector remains available in the print dialog, but the
+canvas is the default editing interface. Designer controls retain upstream
+English vendor strings; host controls use the selected Filament DB language.
 
 **Export template** downloads the original JSON with its variable expressions.
 **Export JSON** inside the print editor downloads the instantiated design with
@@ -175,7 +186,9 @@ Template imports are limited to 1 MiB and 100 elements. Resolved values must
 also satisfy the existing design rules: text at most 5,000 characters, QR data
 at most 2,953 characters, valid colors and safe embedded images. Images cannot
 fetch remote content; the exact bundled Bambu Lab wordmark is the sole trusted
-SVG exception. Element IDs must be unique and fixed. QR rotations must be
+SVG exception. Element IDs must be unique and fixed. Barcode data is literal (dollar-variable
+substitution is currently limited to the documented text/QR/color fields).
+QR rotations must be
 multiples of 90 degrees. Inspect the preview and enlarge a QR area if density
 checks reject it. No template import starts a printer connection or job.
 

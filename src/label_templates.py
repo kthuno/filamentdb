@@ -142,6 +142,7 @@ def validate_template(design, size):
                 "image",
                 "shape",
                 "qr",
+                "barcode",
             }:
                 raise ValueError(INVALID)
             identity = element.get("id")
@@ -191,6 +192,38 @@ def validate_template(design, size):
                     "bottom",
                 }:
                     raise ValueError(INVALID)
+            if kind == "barcode" and (
+                not isinstance(element.get("barcodeData"), str)
+                or not 1 <= len(element["barcodeData"]) <= 500
+                or element.get("barcodeFormat", "CODE128")
+                not in {
+                    "CODE128",
+                    "CODE128A",
+                    "CODE128B",
+                    "CODE128C",
+                    "EAN13",
+                    "EAN8",
+                    "EAN5",
+                    "EAN2",
+                    "UPC",
+                    "UPCE",
+                    "CODE39",
+                    "ITF14",
+                    "ITF",
+                    "MSI",
+                    "MSI10",
+                    "MSI11",
+                    "MSI1010",
+                    "MSI1110",
+                    "pharmacode",
+                    "codabar",
+                }
+                or (
+                    "textFontSize" in element
+                    and not _number(element["textFontSize"], 1, 200)
+                )
+            ):
+                raise ValueError(INVALID)
             if kind == "qr":
                 if (
                     not isinstance(element.get("qrData"), str)
@@ -229,9 +262,17 @@ def validate_template(design, size):
                 ):
                     raise ValueError(INVALID)
                 if (
-                    element.get("brightness", 0) != 0
-                    or element.get("contrast", 0) != 0
-                    or element.get("dither", "none") not in {"none", "threshold"}
+                    not _number(element.get("brightness", 0), -100, 100)
+                    or not _number(element.get("contrast", 0), -100, 100)
+                    or element.get("dither", "none")
+                    not in {
+                        "none",
+                        "threshold",
+                        "floyd-steinberg",
+                        "atkinson",
+                        "ordered",
+                        "auto",
+                    }
                 ):
                     raise ValueError(INVALID)
         return encoded
