@@ -214,11 +214,20 @@ test('cancelling pending BLE/USB selection cannot establish a late session',asyn
 });
 
 function nativeDOM({fastJobs=false}={}) {
-  const all=[];
+  const all=[],messageListeners=new Set();
+  const dispatch=(source,data)=>{for(const listener of messageListeners)listener({source,data,origin:'null'});};
   class Node {
     constructor(tag='div',attrs={},parent=null) {
       this.tag=tag;this.attrs=attrs;this.parent=parent;this.dataset={};this.value='';this.disabled=false;this.textContent='';this.open=false;this.listeners={};
       for(const [key,value] of Object.entries(attrs))if(key.startsWith('data-'))this.dataset[key.slice(5).replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]=value;
+      if(tag==='iframe'){
+        this.contentWindow={postMessage:message=>{
+          if(['initialize','replace'].includes(message.type))this.frameDesign=JSON.parse(JSON.stringify(message.design));
+          if(message.type==='initialize')queueMicrotask(()=>dispatch(this.contentWindow,{channel:'filamentdb-designer',session:message.session,type:'loaded'}));
+          if(message.type==='snapshot')queueMicrotask(()=>dispatch(this.contentWindow,{channel:'filamentdb-designer',session:message.session,type:'snapshot',request:message.request,design:this.frameDesign}));
+        }};
+        Object.defineProperty(this,'src',{set:value=>{if(value)queueMicrotask(()=>dispatch(this.contentWindow,{channel:'filamentdb-designer',type:'ready'}));}});
+      }
       if(tag==='canvas'){const c=recordingCanvas();this.getContext=c.getContext;this.toBlob=cb=>cb(new Blob(['png']));}
       all.push(this);
     }
@@ -226,7 +235,7 @@ function nativeDOM({fastJobs=false}={}) {
       const descendants=node=>node.parent===this || (node.parent && descendants(node.parent));
       for(let i=all.length-1;i>=0;i--)if(all[i]!==this && descendants(all[i]))all.splice(i,1);
       this.html=html;
-      for(const match of html.matchAll(/<(input|select|textarea|canvas|p|fieldset|div|button)\b([^>]*)>/g)) {
+      for(const match of html.matchAll(/<(input|select|textarea|canvas|iframe|p|fieldset|div|button)\b([^>]*)>/g)) {
         const attrs={};for(const attribute of match[2].matchAll(/([\w-]+)(?:="([^"]*)")?/g))attrs[attribute[1]]=attribute[2]||'';
         const node=new Node(match[1],attrs,this);
         if(match[1]==='select') {
@@ -248,10 +257,11 @@ function nativeDOM({fastJobs=false}={}) {
     close(){this.open=false;this.listeners.close?.();}
     click(){this.clicked=true;}
     remove(){}
+    removeAttribute(name){delete this.attrs[name];}
   }
   const root=new Node('dialog',{id:'native-label-dialog'});new Node('div',{id:'native-label-content'},root);
   const storage=new Map(),downloads=[],api=templateAPI();
-  const context=vm.createContext({fetch:api.fetch,Blob,Intl,Uint8Array,Uint8ClampedArray,Float32Array,isSecureContext:true,navigator:{},
+  const context=vm.createContext({crypto:require('node:crypto').webcrypto,window:{addEventListener:(name,listener)=>{if(name==='message')messageListeners.add(listener);},removeEventListener:(name,listener)=>messageListeners.delete(listener)},fetch:api.fetch,Blob,Intl,Uint8Array,Uint8ClampedArray,Float32Array,isSecureContext:true,navigator:{},
     document:{querySelector:selector=>root.matches(selector)?root:null,createElement:tag=>new Node(tag),fonts:{ready:Promise.resolve()},body:{append(){}}},
     localStorage:{getItem:key=>storage.get(key),setItem:(key,value)=>storage.set(key,value)},
     URL:{createObjectURL:blob=>{downloads.push(blob);return 'blob:export';},revokeObjectURL(){}},
@@ -427,4 +437,22 @@ test('a new template takes precedence over legacy saved designs without deleting
   const spool={id:1,name:'Current spool',manufacturer:'Other',material:'PLA',label_token:'one'};
   await graph.namespace.openNativeLabelPrinter(spool,'https://example.com/#spool/one');assert.notEqual(ui.field('name').value,'Legacy design');assert.equal(JSON.parse(ui.storage.get('filamentdb.label-design.one')).name,'Legacy design');
   await ui.click('close');await store.removeSharedLabelTemplate('70x80');await graph.namespace.openNativeLabelPrinter(spool,'https://example.com/#spool/one');assert.equal(ui.field('name').value,'Legacy design');
+});
+
+test('native QR fills its square with a one-module margin and pixel-snapped boundaries at every size and rotation',async()=>{
+  const {renderDesign}=await import('../static/label-renderer.js');
+  const {default:qrcodegen}=await import('../static/vendor/qrcodegen.js');
+  const payload='https://filament.example/#spool/permanent-identity-0042';
+  const qr=qrcodegen.QrCode.encodeText(payload,qrcodegen.QrCode.Ecc.MEDIUM),cells=qr.size+2;
+  for(const side of [157,200,237,280])for(const rotation of [0,90,180,270]){
+    const element={id:'qr',type:'qr',x:20,y:100,width:side+16,height:side,rotation,qrData:payload,errorCorrection:'M'};
+    const canvas=recordingCanvas();await renderDesign({version:3,name:'QR fit',labelSize:{width:70,height:80},elements:[element]},{makeCanvas:()=>canvas});
+    const black=canvas.calls.filter(c=>c[0]==='fillRect').slice(2),expected=[];
+    const left=-(side+16)/2+8,top=-side/2,edge=n=>Math.floor(n*side/cells);
+    for(let y=0;y<qr.size;y++)for(let x=0;x<qr.size;x++)if(qr.getModule(x,y))expected.push(['fillRect',left+edge(x+1),top+edge(y+1),edge(x+2)-edge(x+1),edge(y+2)-edge(y+1)]);
+    assert.deepEqual(black,expected);
+    assert.equal(Math.min(...black.map(c=>c[1])),left+edge(1));
+    assert.equal(Math.max(...black.map(c=>c[1]+c[3])),left+edge(qr.size+1));
+    assert.ok(black.every(c=>Number.isInteger(c[3])&&Number.isInteger(c[4])&&c[3]>=2&&c[4]>=2));
+  }
 });

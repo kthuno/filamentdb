@@ -206,3 +206,56 @@ class LabelTemplateTest(unittest.TestCase):
         label_templates.initialize(Connection(), mysql=True)
         self.assertIn("MEDIUMTEXT", statements[0])
         self.assertIn("ENGINE=InnoDB", statements[0])
+
+    def test_designer_assets_are_explicit_and_sandboxed(self):
+        from src.designer_assets import DESIGNER_ASSETS, designer_asset
+
+        for asset in DESIGNER_ASSETS:
+            body, mime, headers = designer_asset("/" + asset)
+            self.assertTrue(body, asset)
+            self.assertEqual(headers["Access-Control-Allow-Origin"], "*")
+            self.assertIn("charset=utf-8", mime)
+        _, _, headers = designer_asset("/vendor/phomymo/index.html")
+        self.assertIn("connect-src 'none'", headers["Content-Security-Policy"])
+        self.assertIn("usb=()", headers["Permissions-Policy"])
+        for path in [
+            "/vendor/phomymo/../../data/filaments.sqlite3",
+            "/vendor/phomymo/%2e%2e/app.js",
+            "/vendor/phomymo/unknown.js",
+        ]:
+            self.assertIsNone(designer_asset(path))
+
+    def test_designer_barcode_and_image_filters_round_trip(self):
+        design = self.example()
+        design["elements"].append(
+            {
+                "id": "barcode",
+                "type": "barcode",
+                "x": 10,
+                "y": 20,
+                "width": 280,
+                "height": 50,
+                "barcodeData": "12345678",
+                "barcodeFormat": "CODE128",
+            }
+        )
+        design["elements"].insert(
+            0,
+            {
+                "id": "filtered-image",
+                "type": "image",
+                "x": 1,
+                "y": 1,
+                "width": 20,
+                "height": 10,
+                "imageData": label_templates._bundled_logo(),
+                "brightness": 25,
+                "contrast": -10,
+                "dither": "floyd-steinberg",
+            },
+        )
+        self.request("/40x30", "PUT", {"design": design, "expected_revision": None})
+        self.assertEqual(self.request()[1]["templates"][0]["design"], design)
+        design["elements"][-1]["barcodeData"] = "$qrurl$"
+        with self.assertRaises(ValueError):
+            label_templates.validate_template(design, "40x30")

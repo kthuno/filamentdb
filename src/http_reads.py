@@ -11,6 +11,7 @@ from urllib.parse import parse_qs, quote, urlparse
 
 from .config import ROOT, VERSION
 from .database import connect
+from .designer_assets import designer_asset
 from .file_archive import apply_estimates, get_file, storage_path
 from .i18n import choose_language, locale_asset, translated_value
 from .label_templates import list_templates
@@ -22,6 +23,12 @@ from .validation import FIELDS
 class ReadRoutes:
     def do_GET(self):
         path = urlparse(self.path).path
+        if path.startswith("/vendor/phomymo/"):
+            asset = designer_asset(path)
+            if asset is None:
+                return self.respond(404, {"error": "Ikke fundet"})
+            body, mime, headers = asset
+            return self.respond(200, body, mime, headers)
         if path == "/api/label-templates":
             with closing(connect()) as conn:
                 return self.respond(
@@ -422,6 +429,22 @@ class ReadRoutes:
                 )
             return self.respond(404, {"error": "Ikke fundet"})
         assets = {
+            "/phomymo-designer.js": (
+                "phomymo-designer.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/template-designer-dialog.js": (
+                "template-designer-dialog.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/barcode-renderer.js": (
+                "barcode-renderer.js",
+                "text/javascript; charset=utf-8",
+            ),
+            "/vendor/barcode.js": (
+                "vendor/barcode.js",
+                "text/javascript; charset=utf-8",
+            ),
             "/i18n.js": ("i18n.js", "text/javascript; charset=utf-8"),
             "/actions.js": ("actions.js", "text/javascript; charset=utf-8"),
             "/core.js": ("core.js", "text/javascript; charset=utf-8"),

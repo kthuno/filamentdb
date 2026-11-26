@@ -23,7 +23,7 @@ See [Getting started](docs/getting-started.md) for configuration and browser app
 | [Inventory and locations](docs/inventory-and-locations.md) | Spools, [material type administration](docs/inventory-and-locations.md#material-type-administration), AMS, QR labels, [M220 thermal labels](docs/inventory-and-locations.md#phomemo-m220-labels), and archiving |
 | [Manufacturer material profiles](docs/material-profiles.md) | Bambu guide lookup, source provenance, and label defaults |
 | [Native M220 printing](docs/native-printing.md) | Editable Phomymo-compatible designs, USB/Bluetooth, monochrome preview, JSON/PNG export, and physical verification |
-| [Label templates and variables](docs/label-templates.md) | Import one JSON template per size, use spool variables, and download ready-to-edit examples |
+| [Label templates and variables](docs/label-templates.md) | Design shared templates visually, use spool variables, and import/export size-specific JSON |
 | [Prints and consumption](docs/prints-and-consumption.md) | Print records, individual consumption, waste, history, and statistics |
 | [Projects and shopping](docs/projects-and-shopping.md) | 3MF projects, build plates, filament requirements, and shopping lists |
 | [File archive](docs/file-archive.md) | Uploads, estimates, images, and print history per file |

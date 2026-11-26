@@ -1,0 +1,20 @@
+/* Filament DB adaptation. Keep upstream canvas, property panes and mobile tools. */
+body {opacity:1;background:#282a36;color:#f8f8f2}
+#connect-btn,#conn-type,#connection-status,#print-btn,#mobile-print-btn,#print-settings-btn,
+#info-btn,#info-dialog,#save-btn,#load-btn,#template-btn,#template-tab,
+#template-sidebar,#template-quick-print,#template-print-all,#full-preview-print,
+#enable-local-fonts,#local-fonts-btn,#multi-label-btn,#multi-label-settings-btn,
+#printer-info-popup,#printer-model-prompt,
+#custom-size,#label-size,#length-adjust,#tape-width-container {display:none!important}
+a[href="#"] {pointer-events:none}
+header,.bg-white {background-color:#282a36;color:#f8f8f2}
+.bg-gray-50,.bg-gray-100 {background-color:#343746}
+.text-gray-900,.text-gray-800,.text-gray-700,.text-gray-600 {color:#f8f8f2}
+.border-gray-200,.border-gray-300 {border-color:#6272a4}
+input,select,textarea,.prop-input {background:#21222c!important;color:#f8f8f2!important;border-color:#6272a4!important}
+.toolbar-btn {background:#44475a;color:#f8f8f2;border-color:#6272a4}
+.toolbar-btn:hover {background:#6272a4}
+button.bg-gray-900,button.bg-blue-500 {background:#bd93f9;color:#282a36}
+#preview-canvas {touch-action:none}
+
+#template-toolbar-btn,#template-toolbar-divider,#printer-info-btn,#template-panel,#mobile-template-status,#mobile-save-btn,#mobile-load-btn,#mobile-print-settings-btn,#mobile-template-manage,#mobile-template-preview,#mobile-template-print{display:none!important}

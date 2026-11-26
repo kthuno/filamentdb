@@ -52,7 +52,8 @@ The Bambu Lab wordmark is the existing bundled vector artwork, with its
 CC BY-SA 4.0 attribution preserved in the embedded image metadata and JSON.
 It is included for Bambu/Bambu Lab/BambuLab spools. Other manufacturers use
 text. The QR code uses a round top-left finder with the other two finders
-square, sharing its encoded module and quiet-zone rules with SVG labels.
+square. Native QR rendering fills the element square with a one-module white
+margin, matching Phomymo. The SVG label workflow retains its existing sizing.
 The inspector can choose square or round-top-left finders. The `finderStyle`
 property is a native extension retained by JSON export; external Phomymo
 renderers that do not understand it will use their normal square QR finders.
@@ -63,16 +64,35 @@ text/image/shape/QR test designs. Existing saved designs remain unchanged;
 use **Spool design** (or **Apply template** for a configured size), then
 **Save design in browser** to apply that design explicitly to a saved label.
 
-Select an element in the list or click it in the preview. Edit its content,
-position, dimensions and rotation using the inspector. Text supports size,
-weight and alignment; shapes support type, fill, stroke and stroke width.
-Add/remove text, QR, shapes or embedded PNG/JPEG images, and change stacking
-order. QR rotations must be multiples of 90 degrees; finder style is also editable. This is a focused label
-editor; barcodes, PDF, Phomymo dataset templates and multi-label sheets are not
-supported. Size-specific dollar-variable JSON templates are configured in the
-QR page's Label templates section. Image brightness/contrast filters and per-image dithering settings
-are not imported; use the dialog's monochrome conversion setting. Unsupported
-imports are rejected rather than silently losing their rendering settings.
+The default editor is the locally bundled Phomymo graphical designer: select,
+drag, resize, rotate, align, group, reorder and duplicate elements, with
+undo/redo and the upstream desktop/mobile property panes. It supports text,
+QR, barcodes, shapes, PNG/JPEG images and PDF first-page image import. Image
+brightness/contrast and per-image dithering are preserved. Barcodes use the
+bundled JsBarcode encoder and fail explicitly if their field is too narrow.
+The advanced numeric inspector and final print preview remain in a collapsed
+section. Host controls still own size, copies, darkness, feed, connection,
+JSON/PNG export and browser-local individual design saves.
+
+The designer is served from `/vendor/phomymo/`, with all runtime libraries and
+precompiled styles bundled locally. There is no dependency on a running
+Phomymo site, CDN, Google Fonts, npm or a runtime build step. Its canvas uses
+available local/system fonts. The upstream designer controls retain English
+vendor strings; Filament DB controls use the selected interface catalog.
+
+An opaque-origin iframe sandbox allows scripts and user downloads, without
+same-origin access, forms, popups, printer permissions or app API access.
+CSP blocks network connections and external images; an explicit server asset
+allowlist enables module CORS. Only validated design documents cross a
+frame/source/session-checked message bridge. Saving/exporting/printing requests
+an immediate canvas snapshot, so a pending edit debounce cannot print an older
+revision. Printer transfer and shared template writes execute only in the host.
+
+Dataset CSV templates, printer management and multi-label sheets are hidden;
+Filament DB's dollar-variable templates and three supported sizes remain the
+source of truth. Shared templates use their opening revision when saved, even
+if a background reload discovers a newer one. Template edits and per-spool
+concrete edits remain separate.
 
 **Import Phomymo JSON** accepts version 3 designs with the supported elements
 and one of the three preset sizes. Import preserves original content, element
@@ -108,7 +128,9 @@ it is independent of this native workflow.
 
 Threshold is the default for text and QR. Floyd–Steinberg, Atkinson and ordered
 dithering are available for grayscale artwork. QR regions retain binary
-modules and their four-module quiet zone. The renderer waits for embedded
+modules and their one-module white margin. Module boundaries are snapped to
+printer pixels while filling the requested square, avoiding the size reduction
+caused by rounding a single shared module size down. The renderer waits for embedded
 images and local fonts before enabling export or print. Imported images cannot
 reference external URLs or arbitrary SVG. The exact bundled Bambu Lab wordmark
 is the sole SVG image exception; modified SVG data is rejected. JSON is limited to 1 MiB and 100

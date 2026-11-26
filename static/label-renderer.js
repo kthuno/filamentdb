@@ -1,3 +1,5 @@
+import { drawBarcode } from './barcode-renderer.js';
+import { monochromePixels, previewPixels } from './label-raster.js';
 import { validateDesign } from './label-design.js';
 import { PrinterError } from './printer-transport.js';
 import qrcodegen from './vendor/qrcodegen.js';
@@ -263,22 +265,39 @@ export async function renderDesign(design,{makeCanvas=()=>document.createElement
       ctx.translate(x+w/2,y+h/2);
       ctx.rotate((element.rotation||0)*Math.PI/180);
       if(type==='text')textRenderer.renderTextElement(element,w,h);
-      if(type==='image')ctx.drawImage(image,-w/2,-h/2,w,h);
+      if(type==='image') {
+        const mode=element.dither==='auto'?'floyd-steinberg':element.dither||'none',filtered=Boolean(element.brightness||element.contrast||!['none','auto'].includes(mode));
+        if(filtered){
+          const adjusted=makeCanvas();adjusted.width=Math.max(1,Math.round(w));adjusted.height=Math.max(1,Math.round(h));const target=adjusted.getContext('2d');
+          target.fillStyle='white';target.fillRect(0,0,adjusted.width,adjusted.height);
+          target.filter=`brightness(${1+(element.brightness||0)/100}) contrast(${1+(element.contrast||0)/100})`;
+          target.drawImage(image,0,0,adjusted.width,adjusted.height);target.filter='none';
+          if(!['none','auto'].includes(mode)){
+            const pixels=target.getImageData(0,0,adjusted.width,adjusted.height),dots=monochromePixels(pixels.data,adjusted.width,adjusted.height,mode);pixels.data.set(previewPixels(dots));target.putImageData(pixels,0,0);
+          }
+          ctx.drawImage(adjusted,-w/2,-h/2,w,h);
+        }else ctx.drawImage(image,-w/2,-h/2,w,h);
+      }
+      if(type==='barcode')drawBarcode(ctx,element,w,h);
       if(type==='qr') {
         const sideways=Math.abs((element.rotation||0)%180)===90;
         qrRegions.push({x:x+(w-(sideways?h:w))/2,y:y+(h-(sideways?w:h))/2,width:sideways?h:w,height:sideways?w:h});
         const level=qrcodegen.QrCode.Ecc[element.errorCorrection==='L'?'LOW':element.errorCorrection==='Q'?'QUARTILE':element.errorCorrection==='H'?'HIGH':'MEDIUM'];
         let qr;
         try {qr=qrcodegen.QrCode.encodeText(element.qrData,level);}catch {throw new PrinterError('qr_too_dense');}
-        const dot=Math.floor(Math.min(w,h)/(qr.size+8));
-        if(dot<2)throw new PrinterError('qr_too_dense');
-        const span=(qr.size+8)*dot,left=-w/2+Math.floor((w-span)/2),top=-h/2+Math.floor((h-span)/2);
+        const side=Math.floor(Math.min(w,h)),cells=qr.size+2;
+        if(Math.floor(side/cells)<2)throw new PrinterError('qr_too_dense');
+        // Match Phomymo's one-module margin and fill the requested QR square.
+        // Snap each module boundary, rather than shrinking every module to the
+        // same integer size and leaving a large unused border.
+        const left=-w/2+Math.floor((w-side)/2),top=-h/2+Math.floor((h-side)/2);
+        const edge=value=>Math.floor(value*side/cells),dot=side/cells;
         ctx.fillStyle='white';ctx.fillRect(-w/2,-h/2,w,h);ctx.fillStyle='black';
         const artwork=qrArtwork(qr,element.finderStyle==='round-top-left');
-        for(const {x,y} of artwork.modules)ctx.fillRect(left+(x+4)*dot,top+(y+4)*dot,dot,dot);
+        for(const {x,y} of artwork.modules)ctx.fillRect(left+edge(x+1),top+edge(y+1),edge(x+2)-edge(x+1),edge(y+2)-edge(y+1));
         for(const circle of artwork.circles) {
           ctx.beginPath();ctx.fillStyle=circle.fill;
-          ctx.ellipse(left+7.5*dot,top+7.5*dot,circle.radius*dot,circle.radius*dot,0,0,Math.PI*2);ctx.fill();
+          ctx.ellipse(left+4.5*dot,top+4.5*dot,circle.radius*dot,circle.radius*dot,0,0,Math.PI*2);ctx.fill();
         }
       }
       if(type==='shape') {
