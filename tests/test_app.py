@@ -1735,7 +1735,7 @@ class ApiTest(unittest.TestCase):
         self.assertIn("/administration.js", visited)
         self.assertIn("/usage-model.js", visited)
         self.assertIn("/labels.js", visited)
-        self.assertIn("/thermal-labels.js", visited)
+        self.assertNotIn("/thermal-labels.js", visited)
         self.assertIn("/label-print-dialog.js", visited)
         self.assertIn("/printer-usb.js", visited)
         self.assertIn("/printer-bluetooth.js", visited)

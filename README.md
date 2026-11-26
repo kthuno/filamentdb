@@ -20,7 +20,7 @@ See [Getting started](docs/getting-started.md) for configuration and browser app
 
 | Topic | Contents |
 |---|---|
-| [Inventory and locations](docs/inventory-and-locations.md) | Spools, [material type administration](docs/inventory-and-locations.md#material-type-administration), AMS, QR labels, [M220 thermal labels](docs/inventory-and-locations.md#phomemo-m220-labels), and archiving |
+| [Inventory and locations](docs/inventory-and-locations.md) | Spools, [material type administration](docs/inventory-and-locations.md#material-type-administration), AMS, QR labels, [M220 labels](docs/inventory-and-locations.md#phomemo-m220-labels), and archiving |
 | [Manufacturer material profiles](docs/material-profiles.md) | Bambu guide lookup, source provenance, and label defaults |
 | [Native M220 printing](docs/native-printing.md) | Editable Phomymo-compatible designs, USB/Bluetooth, monochrome preview, JSON/PNG export, and physical verification |
 | [Label templates and variables](docs/label-templates.md) | Design shared templates visually, use spool variables, and import/export size-specific JSON |
